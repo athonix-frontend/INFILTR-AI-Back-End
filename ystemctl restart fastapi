@@ -1,0 +1,12 @@
+[0;1;31m×[0m fastapi.service - FastAPI Application
+     Loaded: loaded (]8;;file://localhost/etc/systemd/system/fastapi.service/etc/systemd/system/fastapi.service]8;;; [0;1;32menabled[0m; preset: [0;1;32menabled[0m)
+     Active: [0;1;31mfailed[0m (Result: exit-code) since Thu 2025-01-30 21:23:38 UTC; 1min 44s ago
+   Duration: 852ms
+    Process: 6550 ExecStart=/opt/infiltr-ai/venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000 [0;1;31m(code=exited, status=1/FAILURE)[0m
+   Main PID: 6550 (code=exited, status=1/FAILURE)
+        CPU: 841ms
+
+Jan 30 21:23:38 localhost systemd[1]: fastapi.service: Scheduled restart job, restart counter is at 5.
+Jan 30 21:23:38 localhost systemd[1]: [0;1;38;5;185m[0;1;39m[0;1;38;5;185mfastapi.service: Start request repeated too quickly.[0m
+Jan 30 21:23:38 localhost systemd[1]: [0;1;38;5;185m[0;1;39m[0;1;38;5;185mfastapi.service: Failed with result 'exit-code'.[0m
+Jan 30 21:23:38 localhost systemd[1]: [0;1;31m[0;1;39m[0;1;31mFailed to start fastapi.service - FastAPI Application.[0m

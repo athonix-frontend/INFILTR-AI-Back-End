@@ -1,14 +1,17 @@
 from pydantic import BaseModel
+from typing import Optional
+from datetime import date, datetime
 
-class UserBase(BaseModel):
-    name: str
+# Schema for Creating a User
+class UserCreate(BaseModel):
+    google_oauth: Optional[bool] = False
     email: str
-
-class UserCreate(UserBase):
     password: str
+    name: str
 
-class UserResponse(UserBase):
-    id: int
-
-    class Config:
-        orm_mode = True
+# Schema for Creating a Test
+class TestCreate(BaseModel):
+    user_id: int
+    test_date: date
+    test_status: str
+    test_name: str

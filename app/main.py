@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
-from . import models, schemas
+from . import models, schemas, crud
 from .database import engine, get_db
 
 app = FastAPI()
@@ -8,16 +8,14 @@ app = FastAPI()
 # Create Tables in Database
 models.Base.metadata.create_all(bind=engine)
 
-# Endpoint to Create a New User
-@app.post("/users/")
+@app.post("/users/", response_model=schemas.UserResponse)
 def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
-    db_user = models.User(email=user.email, password=user.password, name=user.name, google_oauth=user.google_oauth)
-    db.add(db_user)
-    db.commit()
-    db.refresh(db_user)
-    return db_user
+    db_user = crud.get_user_by_email(db, user.email)
+    if db_user:
+        raise HTTPException(status_code=400, detail="Email already registered")
 
-# Endpoint to Create a New Test
+    return crud.create_user(db=db, user=user)
+
 @app.post("/tests/")
 def create_test(test: schemas.TestCreate, db: Session = Depends(get_db)):
     db_test = models.Test(

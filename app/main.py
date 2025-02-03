@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
+from sqlalchemy import text  # <-- Added import for text
 from pydantic import BaseModel
 from passlib.context import CryptContext
 from jose import JWTError, jwt
@@ -129,7 +130,7 @@ def run_insert_script():
 @app.get("/api/aggregated-data")
 def get_aggregated_data(db: Session = Depends(get_db)):
     try:
-        query = """
+        query = text("""
             SELECT
                 date_trunc('month', report_date) as month,
                 AVG(risk_score) as avg_risk,
@@ -138,7 +139,7 @@ def get_aggregated_data(db: Session = Depends(get_db)):
             FROM reports
             GROUP BY month
             ORDER BY month;
-        """
+        """)
         result = db.execute(query)
         data = []
         for row in result:

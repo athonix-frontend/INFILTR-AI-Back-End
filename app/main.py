@@ -116,6 +116,43 @@ def run_insert_script():
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+# *********************************************************************
+# New API endpoint: Aggregated Data per Month
+#
+# This endpoint returns:
+#   - Average risk per month
+#   - Total vulnerabilities per month
+#   - Average compliance per month
+#
+# The SQL query uses date_trunc('month', report_date) to group data by month.
+# *********************************************************************
+@app.get("/api/aggregated-data")
+def get_aggregated_data(db: Session = Depends(get_db)):
+    try:
+        query = """
+            SELECT
+                date_trunc('month', report_date) as month,
+                AVG(risk_score) as avg_risk,
+                SUM(vulnerability_count) as total_vulnerabilities,
+                AVG(compliance_score) as avg_compliance
+            FROM reports
+            GROUP BY month
+            ORDER BY month;
+        """
+        result = db.execute(query)
+        data = []
+        for row in result:
+            # Format the month as "YYYY-MM" for clarity in the frontend chart
+            data.append({
+                "month": row["month"].strftime("%Y-%m"),
+                "avg_risk": float(row["avg_risk"]) if row["avg_risk"] is not None else None,
+                "total_vulnerabilities": int(row["total_vulnerabilities"]) if row["total_vulnerabilities"] is not None else None,
+                "avg_compliance": float(row["avg_compliance"]) if row["avg_compliance"] is not None else None,
+            })
+        return {"data": data}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 # Root endpoint
 @app.get("/")
 async def root():

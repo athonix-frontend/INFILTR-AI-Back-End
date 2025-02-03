@@ -140,12 +140,13 @@ def get_aggregated_data(db: Session = Depends(get_db)):
             GROUP BY month
             ORDER BY month;
         """)
-        result = db.execute(query)
+        # Use the mappings() method to iterate over rows as dictionaries.
+        result = db.execute(query).mappings()
         data = []
         for row in result:
             # Format the month as "YYYY-MM" for clarity in the frontend chart
             data.append({
-                "month": row["month"].strftime("%Y-%m"),
+                "month": row["month"].strftime("%Y-%m") if row["month"] is not None else None,
                 "avg_risk": float(row["avg_risk"]) if row["avg_risk"] is not None else None,
                 "total_vulnerabilities": int(row["total_vulnerabilities"]) if row["total_vulnerabilities"] is not None else None,
                 "avg_compliance": float(row["avg_compliance"]) if row["avg_compliance"] is not None else None,

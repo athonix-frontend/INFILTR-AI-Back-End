@@ -1,5 +1,6 @@
 annotated-types==0.7.0
 anyio==4.5.2
+asyncpg==0.30.0
 click==8.1.8
 dnspython==2.7.0
 ecdsa==0.19.0
@@ -10,6 +11,7 @@ greenlet==3.1.1
 h11==0.14.0
 idna==3.10
 passlib==1.7.4
+psycopg2==2.9.10
 psycopg2-binary==2.9.10
 pyasn1==0.6.1
 pydantic==2.10.5

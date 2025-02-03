@@ -20,6 +20,8 @@ def insert_data():
         )
         cur = conn.cursor()
 
+        print("🔗 Connected to PostgreSQL successfully.")
+
         # Ensure user exists (Change user_id if needed)
         user_id = 1  # Must exist in users table
 
@@ -29,9 +31,11 @@ def insert_data():
             VALUES (%s, %s, %s, %s)
             RETURNING test_id;
         """
-        test_data = (user_id, 'Security Audit', datetime.now().date(), 'Unselected')  # Use a valid ENUM value
+        test_data = (user_id, 'Security Audit', datetime.now().date(), 'Unselected')
         cur.execute(test_query, test_data)
         test_id = cur.fetchone()[0]
+        conn.commit()
+        print(f"✅ Inserted into tests, test_id = {test_id}")
 
         # Insert into target_details table
         target_query = """
@@ -42,6 +46,8 @@ def insert_data():
         injection_fields = json.dumps({"input1": "test", "input2": "payload"})
         target_data = (test_id, 'http://example.com', 'admin@example.com', 'securepassword', injection_fields)
         cur.execute(target_query, target_data)
+        conn.commit()
+        print("✅ Inserted into target_details")
 
         # Insert into vulnerabilities table (Using correct ENUM: 'Low', 'Medium', 'High')
         vulnerability_query = """
@@ -52,6 +58,8 @@ def insert_data():
         vulnerability_data = (test_id, 'SQL Injection', '/login', 'High', 9.1, 5000.00)
         cur.execute(vulnerability_query, vulnerability_data)
         vulnerability_id = cur.fetchone()[0]
+        conn.commit()
+        print(f"✅ Inserted into vulnerabilities, vulnerability_id = {vulnerability_id}")
 
         # Insert into suggestions table
         suggestion_query = """
@@ -60,6 +68,8 @@ def insert_data():
         """
         suggestion_data = (vulnerability_id, 'Sanitize all user inputs before database queries.', 95.5)
         cur.execute(suggestion_query, suggestion_data)
+        conn.commit()
+        print("✅ Inserted into suggestions")
 
         # Insert into reports table
         report_query = """
@@ -71,10 +81,10 @@ def insert_data():
             'Security audit summary', 'Detailed report with findings and recommendations', datetime.now()
         )
         cur.execute(report_query, report_data)
-
-        # Commit transaction
         conn.commit()
-        print("✅ Data inserted successfully!")
+        print("✅ Inserted into reports")
+
+        print("🎉 All data inserted successfully!")
 
     except Exception as e:
         print(f"❌ An error occurred: {e}")
@@ -84,7 +94,7 @@ def insert_data():
             cur.close()
         if conn:
             conn.close()
+        print("🔒 Database connection closed.")
 
 if __name__ == "__main__":
     insert_data()
-

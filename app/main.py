@@ -7,6 +7,7 @@ from jose import JWTError, jwt
 from datetime import datetime, timedelta
 from typing import Optional
 import subprocess
+import sys
 
 # Import database and models
 from app.database import Base, engine, get_db
@@ -98,15 +99,18 @@ def login_user(user: UserLogin, db: Session = Depends(get_db)):
     access_token = create_access_token(data={"sub": db_user.email})
     return {"access_token": access_token, "token_type": "bearer"}
 
-# API endpoint to execute insert_data.py
+# API endpoint to execute /opt/infiltr-ai/insert_data.py
 @app.post("/api/run-insert-script")
 def run_insert_script():
     try:
-        result = subprocess.run(["python3", "insert_data.py"], capture_output=True, text=True)
-        
+        result = subprocess.run(
+            [sys.executable, "/opt/infiltr-ai/insert_data.py"],  # Uses the same Python interpreter as FastAPI
+            capture_output=True, text=True
+        )
+
         if result.returncode != 0:
             raise HTTPException(status_code=500, detail=f"Script failed: {result.stderr}")
-        
+
         return {"message": "Script executed successfully", "output": result.stdout}
 
     except Exception as e:

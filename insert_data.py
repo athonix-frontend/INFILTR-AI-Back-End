@@ -6,8 +6,8 @@ import json
 # Database connection parameters
 DB_HOST = "172.235.38.75"
 DB_NAME = "mydatabase"
-DB_USER = "myuser"
-DB_PASS = "mypassword"
+DB_USER = "postgres"
+DB_PASS = "postgres"
 
 def insert_data():
     try:

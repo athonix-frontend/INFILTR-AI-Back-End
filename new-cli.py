@@ -28,8 +28,8 @@ from openai import OpenAI
 # Database connection parameters for PostgreSQL
 DB_HOST = "172.235.38.75"
 DB_NAME = "mydb"
-DB_USER = "postgres"
-DB_PASS = "postgres"
+DB_USER = "myuser"
+DB_PASS = "mypassword"
 
 # Global context buffers
 vulnerability_context_buffer = []  # Stores each discovered vulnerability details

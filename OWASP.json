@@ -1,0 +1,241 @@
+{
+    "last_modified": "2025-02-05T03:42:10.106300",
+    "crawler": {
+        "crawl_limits": {
+            "maximum_crawl_time": 3,
+            "maximum_request_count": 0,
+            "maximum_unique_locations": 1500
+        },
+        "crawl_optimization": {
+            "await_navigation_timeout": 10,
+            "clickable_fingerprinting_threshold": 1,
+            "crawl_strategy": "fastest",
+            "crawl_strategy_customized": false,
+            "crawl_using_provided_logins_only": true,
+            "dom_idle_threshold": 0,
+            "drop_advert_requests": true,
+            "form_destination_optimization_threshold": 1,
+            "form_submission_optimization_threshold": 1,
+            "fully_explore_floating_forms": false,
+            "incy_wincy": true,
+            "link_fingerprinting_threshold": 1,
+            "logging_directory": "",
+            "logging_enabled": false,
+            "loopback_link_fingerprinting_threshold": 1,
+            "maximum_form_field_permutations": 4,
+            "maximum_form_permutations": 5,
+            "maximum_link_depth": 4,
+            "maximum_unmatched_anchor_tolerance": 3,
+            "maximum_unmatched_form_tolerance": 0,
+            "maximum_unmatched_frame_tolerance": 0,
+            "maximum_unmatched_iframe_tolerance": 3,
+            "maximum_unmatched_image_area_tolerance": 0,
+            "maximum_unmatched_redirect_tolerance": 0,
+            "network_idle_threshold": 0,
+            "total_unmatched_feature_tolerance": 3,
+            "use_accessible_text_for_visible_text": true,
+            "use_browser_cache": true
+        },
+        "crawl_project_option_overrides": {
+            "connect_timeout": 10,
+            "normal_timeout": 10
+        },
+        "customization": {
+            "allow_all_clickables": true,
+            "allow_out_of_scope_resources": true,
+            "application_uses_fragments_for_routing": "unsure",
+            "browser_based_navigation_mode": "only_if_hardware_supports",
+            "customize_user_agent": false,
+            "guess_hidden_graphql_endpoints": false,
+            "maximum_items_from_sitemap": 1000,
+            "maximum_speculative_links": 1000,
+            "parse_api_definitions": true,
+            "parse_soap_wsdls": true,
+            "perform_graphql_introspection": true,
+            "request_robots_txt": true,
+            "request_sitemap": true,
+            "request_speculative": true,
+            "submit_forms": true,
+            "timeout_for_in_progress_resource_requests": 10,
+            "user_agent": ""
+        },
+        "error_handling": {
+            "number_of_follow_up_passes": 1,
+            "pause_task_requests_timed_out_count": 0,
+            "pause_task_requests_timed_out_percentage": 0
+        }
+    },
+    "scanner": {
+        "audit_optimization": {
+            "consolidate_passive_issues": true,
+            "follow_redirections": true,
+            "maintain_session": true,
+            "max_items_in_progress": 10,
+            "maximum_crawl_and_audit_time": 0,
+            "scan_accuracy": "normal",
+            "scan_speed": "thorough",
+            "skip_ineffective_checks": true
+        },
+        "issues_reported": {
+            "scan_type_intrusive_active": true,
+            "scan_type_javascript_analysis": true,
+            "scan_type_light_active": true,
+            "scan_type_medium_active": true,
+            "scan_type_passive": true,
+            "select_individual_issues": true,
+            "selected_issues": [
+                {
+                    "type_index": "0x00100100",
+                    "enabled": true,
+                    "detection_methods": [
+                        {
+                            "name": "Command Injection Check",
+                            "enabled": true
+                        }
+                    ]
+                },
+                {
+                    "type_index": "0x00100200",
+                    "enabled": true,
+                    "detection_methods": [
+                        {
+                            "name": "Error Messages",
+                            "enabled": true
+                        },
+                        {
+                            "name": "Time Delays",
+                            "enabled": true
+                        },
+                        {
+                            "name": "Boolean Conditions",
+                            "enabled": true
+                        }
+                    ]
+                },
+                {
+                    "type_index": "0x00100210",
+                    "enabled": true,
+                    "detection_methods": [
+                        {
+                            "name": "Error Messages",
+                            "enabled": true
+                        },
+                        {
+                            "name": "Time Delays",
+                            "enabled": true
+                        },
+                        {
+                            "name": "Boolean Conditions",
+                            "enabled": true
+                        },
+                        {
+                            "name": "Database-Specific Checks",
+                            "enabled": true
+                        }
+                    ]
+                },
+                {
+                    "type_index": "0x00100500",
+                    "enabled": true,
+                    "detection_methods": [
+                        {
+                            "name": "LDAP Injection Check",
+                            "enabled": true
+                        }
+                    ]
+                },
+                {
+                    "type_index": "0x00100600",
+                    "enabled": true,
+                    "detection_methods": [
+                        {
+                            "name": "XPath Injection Check",
+                            "enabled": true
+                        }
+                    ]
+                },
+                {
+                    "type_index": "0x00100850",
+                    "enabled": true,
+                    "detection_methods": [
+                        {
+                            "name": "Access Control Bypass Check",
+                            "enabled": true
+                        }
+                    ]
+                },
+                {
+                    "type_index": "0x00100400",
+                    "enabled": true,
+                    "detection_methods": [
+                        {
+                            "name": "XXE Check",
+                            "enabled": true
+                        }
+                    ]
+                },
+                {
+                    "type_index": "0x00200100",
+                    "enabled": true,
+                    "detection_methods": [
+                        {
+                            "name": "Stored XSS Check",
+                            "enabled": true
+                        }
+                    ]
+                },
+                {
+                    "type_index": "0x00200300",
+                    "enabled": true,
+                    "detection_methods": [
+                        {
+                            "name": "Reflected XSS Check",
+                            "enabled": true
+                        }
+                    ]
+                },
+                {
+                    "type_index": "0x00200310",
+                    "enabled": true,
+                    "detection_methods": [
+                        {
+                            "name": "DOM-Based XSS Check",
+                            "enabled": true
+                        }
+                    ]
+                },
+                {
+                    "type_index": "0x00200311",
+                    "enabled": true,
+                    "detection_methods": [
+                        {
+                            "name": "DOM-Based Reflected XSS Check",
+                            "enabled": true
+                        }
+                    ]
+                },
+                {
+                    "type_index": "0x00200312",
+                    "enabled": true,
+                    "detection_methods": [
+                        {
+                            "name": "DOM-Based Stored XSS Check",
+                            "enabled": true
+                        }
+                    ]
+                },
+                {
+                    "type_index": "0x00100900",
+                    "enabled": true,
+                    "detection_methods": [
+                        {
+                            "name": "HTTP Method Check",
+                            "enabled": true
+                        }
+                    ]
+                }
+            ],
+            "store_issues_within_queue_items": false
+        }
+    }
+}

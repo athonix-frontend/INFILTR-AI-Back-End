@@ -155,7 +155,7 @@ def login_user(user: UserLogin, db: Session = Depends(get_db)):
     return {"access_token": access_token, "token_type": "bearer"}
 
 @app.post("/api/run-script")
-def run_insert_script():
+def run_insert_script(target_url: str = Body(..., embed=True)):
     try:
         # Run the new-cli.py script
         result = subprocess.run(

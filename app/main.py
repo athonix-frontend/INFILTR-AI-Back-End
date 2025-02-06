@@ -118,11 +118,11 @@ def login_user(user: UserLogin, db: Session = Depends(get_db)):
     return {"access_token": access_token, "token_type": "bearer"}
 
 # API endpoint to execute /opt/infiltr-ai/insert_data.py
-@app.post("/api/run-insert-script")
+@app.post("/api/run-script")
 def run_insert_script():
     try:
         result = subprocess.run(
-            [sys.executable, "/opt/infiltr-ai/insert_data.py"],  # Uses the same Python interpreter as FastAPI
+            [sys.executable, "/opt/infiltr-ai/new-cli.py"],  # Uses the same Python interpreter as FastAPI
             capture_output=True, text=True
         )
 

@@ -54,7 +54,6 @@ class Token(BaseModel):
     token_type: str
 
 class ConnectionManager:
-    manager = ConnectionManager()
     def __init__(self):
         self.active_connections: list[WebSocket] = []
 
@@ -68,6 +67,10 @@ class ConnectionManager:
     async def broadcast(self, message: str):
         for connection in self.active_connections:
             await connection.send_text(message)
+
+# Instantiate the connection manager outside the class definition
+manager = ConnectionManager()
+
 
 # Function to hash passwords
 def hash_password(password: str):

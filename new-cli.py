@@ -1973,7 +1973,7 @@ def launch_scan():
     # Read target_url from command-line arguments instead of interactive input
     if len(sys.argv) < 2 or not sys.argv[1].strip():
         logger.warning("No target URL provided via command-line argument. Using default URL.")
-        target_url = "http://example.com"  # or your preferred default
+        target_url = "http://127.0.0.1"  # or your preferred default
     else:
         target_url = sys.argv[1].strip()
     logger.info(f"Target URL provided: {target_url}")

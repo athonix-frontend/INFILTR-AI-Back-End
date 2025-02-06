@@ -157,9 +157,9 @@ def login_user(user: UserLogin, db: Session = Depends(get_db)):
 @app.post("/api/run-script")
 def run_insert_script(target_url: str = Body(..., embed=True)):
     try:
-        # Run the new-cli.py script
+        # Pass the target_url as a command-line argument to new-cli.py
         result = subprocess.run(
-            [sys.executable, "/opt/infiltr-ai/new-cli.py"],
+            [sys.executable, "/opt/infiltr-ai/new-cli.py", target_url],
             capture_output=True, text=True
         )
         # Log stdout and stderr for debugging

@@ -10,6 +10,7 @@ from typing import Optional
 import subprocess
 import sys
 from fastapi import WebSocket, WebSocketDisconnect
+from fastapi import Body
 
 # Import database and models
 from app.database import Base, engine, get_db
@@ -181,6 +182,12 @@ async def websocket_endpoint(websocket: WebSocket):
             # Optionally process client messages.
     except WebSocketDisconnect:
         manager.disconnect(websocket)
+
+@app.post("/api/update-status")
+async def update_status(phase: str = Body(..., embed=True)):
+    # Broadcast the current phase to all WebSocket clients
+    await manager.broadcast(phase)
+    return {"message": "Status updated", "phase": phase}
 
 # Root endpoint
 @app.get("/")

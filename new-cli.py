@@ -1971,11 +1971,13 @@ def launch_scan():
     config_path = "OWASP.json"  # Adjust path as necessary
 
     # Read target_url from command-line arguments instead of interactive input
-    if len(sys.argv) < 2:
-        logger.error("No target URL provided via command-line argument.")
-        print("Error: No target URL provided. Please pass the target URL as a command-line argument.")
-        sys.exit(1)
-    target_url = sys.argv[1].strip()
+    if len(sys.argv) < 2 or not sys.argv[1].strip():
+        logger.warning("No target URL provided via command-line argument. Using default URL.")
+        target_url = "http://example.com"  # or your preferred default
+    else:
+        target_url = sys.argv[1].strip()
+    logger.info(f"Target URL provided: {target_url}")
+
     if not target_url:
         logger.error("Target URL cannot be empty.")
         raise ValueError("Target URL cannot be empty.")

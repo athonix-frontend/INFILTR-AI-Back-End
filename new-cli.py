@@ -1969,13 +1969,18 @@ def launch_scan():
         raise EnvironmentError("BURP_API_TOKEN is not set. Please set it as an environment variable.")
 
     config_path = "OWASP.json"  # Adjust path as necessary
-    target_url = input("Enter the target URL (e.g., http://10.10.63.241): ").strip()
 
+    # Read target_url from command-line arguments instead of interactive input
+    if len(sys.argv) < 2:
+        logger.error("No target URL provided via command-line argument.")
+        print("Error: No target URL provided. Please pass the target URL as a command-line argument.")
+        sys.exit(1)
+    target_url = sys.argv[1].strip()
     if not target_url:
         logger.error("Target URL cannot be empty.")
         raise ValueError("Target URL cannot be empty.")
 
-    logger.info(f"Target URL entered: {target_url}")
+    logger.info(f"Target URL provided: {target_url}")
 
     # Send status update for configuration phase
     send_status_update("Configuration phase")

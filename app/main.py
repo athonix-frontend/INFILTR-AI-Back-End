@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 from typing import Optional
 import subprocess
 import sys
+from fastapi import WebSocket, WebSocketDisconnect
 
 # Import database and models
 from app.database import Base, engine, get_db
@@ -50,6 +51,21 @@ class UserLogin(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str
+
+class ConnectionManager:
+    def __init__(self):
+        self.active_connections: list[WebSocket] = []
+
+    async def connect(self, websocket: WebSocket):
+        await websocket.accept()
+        self.active_connections.append(websocket)
+
+    def disconnect(self, websocket: WebSocket):
+        self.active_connections.remove(websocket)
+
+    async def broadcast(self, message: str):
+        for connection in self.active_connections:
+            await connection.send_text(message)
 
 # Function to hash passwords
 def hash_password(password: str):
@@ -154,6 +170,17 @@ def get_aggregated_data(db: Session = Depends(get_db)):
         return {"data": data}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.websocket("/ws/status")
+async def websocket_endpoint(websocket: WebSocket):
+    await manager.connect(websocket)
+    try:
+        while True:
+            # The server can listen for messages if necessary.
+            data = await websocket.receive_text()
+            # Optionally process client messages.
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)
 
 # Root endpoint
 @app.get("/")

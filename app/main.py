@@ -126,16 +126,19 @@ def login_user(user: UserLogin, db: Session = Depends(get_db)):
 def run_insert_script():
     try:
         result = subprocess.run(
-            [sys.executable, "/opt/infiltr-ai/new-cli.py"],  # Uses the same Python interpreter as FastAPI
+            [sys.executable, "/opt/infiltr-ai/new-cli.py"],
             capture_output=True, text=True
         )
 
         if result.returncode != 0:
-            raise HTTPException(status_code=500, detail=f"Script failed: {result.stderr}")
+            error_msg = f"Script failed: {result.stderr}"
+            logger.error(error_msg)
+            raise HTTPException(status_code=500, detail=error_msg)
 
         return {"message": "Script executed successfully", "output": result.stdout}
 
     except Exception as e:
+        logger.exception("Error executing script")
         raise HTTPException(status_code=500, detail=str(e))
 
 # *********************************************************************

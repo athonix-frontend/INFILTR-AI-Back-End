@@ -54,6 +54,7 @@ class Token(BaseModel):
     token_type: str
 
 class ConnectionManager:
+    manager = ConnectionManager()
     def __init__(self):
         self.active_connections: list[WebSocket] = []
 

@@ -1,0 +1,67 @@
+nohup: ignoring input
+2025-02-05 22:42:25 WARNING: Compression for receiving enabled. Compression has been used in the past to break encryption. Sent packets are not compressed unless "allow-compression yes" is also set.
+2025-02-05 22:42:25 Note: --cipher is not set. OpenVPN versions before 2.5 defaulted to BF-CBC as fallback when cipher negotiation failed in this case. If you need this fallback please add '--data-ciphers-fallback BF-CBC' to your configuration and/or add BF-CBC to --data-ciphers.
+2025-02-05 22:42:25 Note: '--allow-compression' is not set to 'no', disabling data channel offload.
+2025-02-05 22:42:25 OpenVPN 2.6.12 x86_64-pc-linux-gnu [SSL (OpenSSL)] [LZO] [LZ4] [EPOLL] [PKCS11] [MH/PKTINFO] [AEAD] [DCO]
+2025-02-05 22:42:25 library versions: OpenSSL 3.0.13 30 Jan 2024, LZO 2.10
+2025-02-05 22:42:25 DCO version: N/A
+2025-02-05 22:42:25 TCP/UDP: Preserving recently used remote address: [AF_INET]54.193.240.194:1194
+2025-02-05 22:42:25 Socket Buffers: R=[212992->212992] S=[212992->212992]
+2025-02-05 22:42:25 UDPv4 link local: (not bound)
+2025-02-05 22:42:25 UDPv4 link remote: [AF_INET]54.193.240.194:1194
+2025-02-05 22:42:25 TLS: Initial packet from [AF_INET]54.193.240.194:1194, sid=880b6a32 3fada1d3
+2025-02-05 22:42:26 VERIFY OK: depth=1, CN=ChangeMe
+2025-02-05 22:42:26 VERIFY KU OK
+2025-02-05 22:42:26 Validating certificate extended key usage
+2025-02-05 22:42:26 ++ Certificate has EKU (str) TLS Web Server Authentication, expects TLS Web Server Authentication
+2025-02-05 22:42:26 VERIFY EKU OK
+2025-02-05 22:42:26 VERIFY OK: depth=0, CN=server
+2025-02-05 22:42:26 Control Channel: TLSv1.3, cipher TLSv1.3 TLS_AES_256_GCM_SHA384, peer certificate: 2048 bits RSA, signature: RSA-SHA256, peer temporary key: 253 bits X25519
+2025-02-05 22:42:26 [server] Peer Connection Initiated with [AF_INET]54.193.240.194:1194
+2025-02-05 22:42:26 TLS: move_session: dest=TM_ACTIVE src=TM_INITIAL reinit_src=1
+2025-02-05 22:42:26 TLS: tls_multi_process: initial untrusted session promoted to trusted
+2025-02-05 22:42:26 PUSH: Received control message: 'PUSH_REPLY,route 10.10.0.0 255.255.0.0,route 10.101.0.0 255.255.0.0,route 10.103.0.0 255.255.0.0,route-metric 1000,route-gateway 10.2.0.1,topology subnet,ping 5,ping-restart 120,ifconfig 10.2.14.148 255.255.128.0,peer-id 99,cipher AES-256-CBC'
+2025-02-05 22:42:26 OPTIONS IMPORT: --ifconfig/up options modified
+2025-02-05 22:42:26 OPTIONS IMPORT: route options modified
+2025-02-05 22:42:26 OPTIONS IMPORT: route-related options modified
+2025-02-05 22:42:26 net_route_v4_best_gw query: dst 0.0.0.0
+2025-02-05 22:42:26 net_route_v4_best_gw result: via 172.235.38.1 dev eth0
+2025-02-05 22:42:26 ROUTE_GATEWAY 172.235.38.1/255.255.255.0 IFACE=eth0 HWADDR=f2:3c:95:0f:9b:21
+2025-02-05 22:42:26 TUN/TAP device tun0 opened
+2025-02-05 22:42:26 net_iface_mtu_set: mtu 1500 for tun0
+2025-02-05 22:42:26 net_iface_up: set tun0 up
+2025-02-05 22:42:26 net_addr_v4_add: 10.2.14.148/17 dev tun0
+2025-02-05 22:42:26 net_route_v4_add: 10.10.0.0/16 via 10.2.0.1 dev [NULL] table 0 metric 1000
+2025-02-05 22:42:26 net_route_v4_add: 10.101.0.0/16 via 10.2.0.1 dev [NULL] table 0 metric 1000
+2025-02-05 22:42:26 net_route_v4_add: 10.103.0.0/16 via 10.2.0.1 dev [NULL] table 0 metric 1000
+2025-02-05 22:42:26 Initialization Sequence Completed
+2025-02-05 22:42:26 Data Channel: cipher 'AES-256-CBC', auth 'SHA512', peer-id: 99, compression: 'lzo'
+2025-02-05 22:42:26 Timers: ping 5, ping-restart 120
+2025-02-05 22:42:26 Protocol options: explicit-exit-notify 3
+2025-02-05 23:11:41 TLS Error: local/remote TLS keys are out of sync: [AF_INET]54.193.240.194:1194 (received key id: 1, known key ids:  [key#0 state=S_GENERATED_KEYS auth=KS_AUTH_TRUE id=0 sid=880b6a32 3fada1d3] [key#1 state=S_UNDEF auth=KS_AUTH_FALSE id=0 sid=00000000 00000000] [key#2 state=S_UNDEF auth=KS_AUTH_FALSE id=0 sid=00000000 00000000])
+2025-02-05 23:51:14 Authenticate/Decrypt packet error: bad packet ID (may be a replay): [ #570949 ] -- see the man page entry for --no-replay and --replay-window for more info or silence this warning with --mute-replay-warnings
+2025-02-05 23:51:14 Authenticate/Decrypt packet error: bad packet ID (may be a replay): [ #570950 ] -- see the man page entry for --no-replay and --replay-window for more info or silence this warning with --mute-replay-warnings
+2025-02-05 23:51:14 Authenticate/Decrypt packet error: bad packet ID (may be a replay): [ #570951 ] -- see the man page entry for --no-replay and --replay-window for more info or silence this warning with --mute-replay-warnings
+2025-02-05 23:51:14 Authenticate/Decrypt packet error: bad packet ID (may be a replay): [ #570952 ] -- see the man page entry for --no-replay and --replay-window for more info or silence this warning with --mute-replay-warnings
+2025-02-05 23:51:14 Authenticate/Decrypt packet error: bad packet ID (may be a replay): [ #570953 ] -- see the man page entry for --no-replay and --replay-window for more info or silence this warning with --mute-replay-warnings
+2025-02-05 23:51:14 Authenticate/Decrypt packet error: bad packet ID (may be a replay): [ #570954 ] -- see the man page entry for --no-replay and --replay-window for more info or silence this warning with --mute-replay-warnings
+2025-02-05 23:51:14 Authenticate/Decrypt packet error: bad packet ID (may be a replay): [ #570955 ] -- see the man page entry for --no-replay and --replay-window for more info or silence this warning with --mute-replay-warnings
+2025-02-05 23:51:14 Authenticate/Decrypt packet error: bad packet ID (may be a replay): [ #570956 ] -- see the man page entry for --no-replay and --replay-window for more info or silence this warning with --mute-replay-warnings
+2025-02-05 23:51:14 Authenticate/Decrypt packet error: bad packet ID (may be a replay): [ #570957 ] -- see the man page entry for --no-replay and --replay-window for more info or silence this warning with --mute-replay-warnings
+2025-02-05 23:51:14 Authenticate/Decrypt packet error: bad packet ID (may be a replay): [ #570958 ] -- see the man page entry for --no-replay and --replay-window for more info or silence this warning with --mute-replay-warnings
+2025-02-05 23:51:14 Authenticate/Decrypt packet error: bad packet ID (may be a replay): [ #570959 ] -- see the man page entry for --no-replay and --replay-window for more info or silence this warning with --mute-replay-warnings
+2025-02-05 23:51:14 Authenticate/Decrypt packet error: bad packet ID (may be a replay): [ #570960 ] -- see the man page entry for --no-replay and --replay-window for more info or silence this warning with --mute-replay-warnings
+2025-02-05 23:51:14 Authenticate/Decrypt packet error: bad packet ID (may be a replay): [ #570961 ] -- see the man page entry for --no-replay and --replay-window for more info or silence this warning with --mute-replay-warnings
+2025-02-05 23:51:14 Authenticate/Decrypt packet error: bad packet ID (may be a replay): [ #570962 ] -- see the man page entry for --no-replay and --replay-window for more info or silence this warning with --mute-replay-warnings
+2025-02-05 23:51:14 Authenticate/Decrypt packet error: bad packet ID (may be a replay): [ #570963 ] -- see the man page entry for --no-replay and --replay-window for more info or silence this warning with --mute-replay-warnings
+2025-02-05 23:51:14 Authenticate/Decrypt packet error: bad packet ID (may be a replay): [ #570964 ] -- see the man page entry for --no-replay and --replay-window for more info or silence this warning with --mute-replay-warnings
+2025-02-05 23:51:14 Authenticate/Decrypt packet error: bad packet ID (may be a replay): [ #570965 ] -- see the man page entry for --no-replay and --replay-window for more info or silence this warning with --mute-replay-warnings
+2025-02-05 23:51:14 Authenticate/Decrypt packet error: bad packet ID (may be a replay): [ #570966 ] -- see the man page entry for --no-replay and --replay-window for more info or silence this warning with --mute-replay-warnings
+2025-02-05 23:51:14 Authenticate/Decrypt packet error: bad packet ID (may be a replay): [ #570967 ] -- see the man page entry for --no-replay and --replay-window for more info or silence this warning with --mute-replay-warnings
+2025-02-05 23:51:14 Authenticate/Decrypt packet error: bad packet ID (may be a replay): [ #570968 ] -- see the man page entry for --no-replay and --replay-window for more info or silence this warning with --mute-replay-warnings
+2025-02-05 23:51:14 Authenticate/Decrypt packet error: bad packet ID (may be a replay): [ #570969 ] -- see the man page entry for --no-replay and --replay-window for more info or silence this warning with --mute-replay-warnings
+2025-02-05 23:51:14 Authenticate/Decrypt packet error: bad packet ID (may be a replay): [ #570970 ] -- see the man page entry for --no-replay and --replay-window for more info or silence this warning with --mute-replay-warnings
+2025-02-05 23:51:14 Authenticate/Decrypt packet error: bad packet ID (may be a replay): [ #570971 ] -- see the man page entry for --no-replay and --replay-window for more info or silence this warning with --mute-replay-warnings
+2025-02-05 23:51:14 Authenticate/Decrypt packet error: bad packet ID (may be a replay): [ #570972 ] -- see the man page entry for --no-replay and --replay-window for more info or silence this warning with --mute-replay-warnings
+2025-02-05 23:51:14 Authenticate/Decrypt packet error: bad packet ID (may be a replay): [ #570973 ] -- see the man page entry for --no-replay and --replay-window for more info or silence this warning with --mute-replay-warnings
+2025-02-05 23:51:14 Authenticate/Decrypt packet error: bad packet ID (may be a replay): [ #570974 ] -- see the man page entry for --no-replay and --replay-window for more info or silence this warning with --mute-replay-warnings

@@ -2358,7 +2358,7 @@ def generate_executive_summary(model):
         "\"test_configurations\": an array of objects, each with: config_id (integer), test_id (integer), "
         "config_name (string), config_date (string or null), status (string), options (object). "
         "For the status field, use exactly one of the following values: 'Not Selected', 'Selected', or 'Completed'.\n\n"
-        "\"tests\": an array of objects, each with: test_id (integer), user_id (integer), test_name (string), "
+        "\"tests\": an array of objects, each with: test_id (integer), user_id (integer) (set equal to 1001), test_name (string), "
         "test_date (string, date), test_status (string). "
         "For the test_status field, use exactly one of the following values: 'Unselected', 'InProgress', or 'Completed'.\n\n"
         "\"vulnerabilities\": an array of objects, each with: vulnerability_id (integer), test_id (integer), "

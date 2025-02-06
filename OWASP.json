@@ -1,5 +1,5 @@
 {
-    "last_modified": "2025-02-05T03:42:10.106300",
+    "last_modified": "2025-02-05T23:41:24.350443",
     "crawler": {
         "crawl_limits": {
             "maximum_crawl_time": 3,
@@ -87,28 +87,43 @@
                 {
                     "type_index": "0x00100100",
                     "enabled": true,
-                    "detection_methods": [
-                        {
-                            "name": "Command Injection Check",
-                            "enabled": true
-                        }
-                    ]
+                    "detection_methods": []
                 },
                 {
                     "type_index": "0x00100200",
                     "enabled": true,
                     "detection_methods": [
                         {
-                            "name": "Error Messages",
-                            "enabled": true
+                            "enabled": true,
+                            "name": "Error messages"
                         },
                         {
-                            "name": "Time Delays",
-                            "enabled": true
+                            "enabled": true,
+                            "name": "Time delays"
                         },
                         {
-                            "name": "Boolean Conditions",
-                            "enabled": true
+                            "enabled": true,
+                            "name": "Boolean conditions"
+                        },
+                        {
+                            "enabled": true,
+                            "name": "Oracle specific"
+                        },
+                        {
+                            "enabled": true,
+                            "name": "MySQL specific"
+                        },
+                        {
+                            "enabled": true,
+                            "name": "SQL Server specific"
+                        },
+                        {
+                            "enabled": true,
+                            "name": "Burp Collaborator"
+                        },
+                        {
+                            "enabled": true,
+                            "name": "PostgreSQL specific"
                         }
                     ]
                 },
@@ -117,122 +132,68 @@
                     "enabled": true,
                     "detection_methods": [
                         {
-                            "name": "Error Messages",
-                            "enabled": true
+                            "enabled": true,
+                            "name": "Error messages"
                         },
                         {
-                            "name": "Time Delays",
-                            "enabled": true
+                            "enabled": true,
+                            "name": "Time delays"
                         },
                         {
-                            "name": "Boolean Conditions",
-                            "enabled": true
+                            "enabled": true,
+                            "name": "Boolean conditions"
                         },
                         {
-                            "name": "Database-Specific Checks",
-                            "enabled": true
+                            "enabled": true,
+                            "name": "Oracle specific"
+                        },
+                        {
+                            "enabled": true,
+                            "name": "MySQL specific"
+                        },
+                        {
+                            "enabled": true,
+                            "name": "SQL Server specific"
+                        },
+                        {
+                            "enabled": true,
+                            "name": "Burp Collaborator"
+                        },
+                        {
+                            "enabled": true,
+                            "name": "PostgreSQL specific"
                         }
                     ]
                 },
                 {
                     "type_index": "0x00100500",
                     "enabled": true,
-                    "detection_methods": [
-                        {
-                            "name": "LDAP Injection Check",
-                            "enabled": true
-                        }
-                    ]
+                    "detection_methods": []
                 },
                 {
                     "type_index": "0x00100600",
                     "enabled": true,
-                    "detection_methods": [
-                        {
-                            "name": "XPath Injection Check",
-                            "enabled": true
-                        }
-                    ]
+                    "detection_methods": []
                 },
                 {
-                    "type_index": "0x00100850",
+                    "type_index": "0x00100900",
                     "enabled": true,
-                    "detection_methods": [
-                        {
-                            "name": "Access Control Bypass Check",
-                            "enabled": true
-                        }
-                    ]
-                },
-                {
-                    "type_index": "0x00100400",
-                    "enabled": true,
-                    "detection_methods": [
-                        {
-                            "name": "XXE Check",
-                            "enabled": true
-                        }
-                    ]
+                    "detection_methods": []
                 },
                 {
                     "type_index": "0x00200100",
                     "enabled": true,
                     "detection_methods": [
                         {
-                            "name": "Stored XSS Check",
-                            "enabled": true
+                            "enabled": true,
+                            "name": "Reflected payload"
                         }
                     ]
                 },
                 {
-                    "type_index": "0x00200300",
+                    "type_index": "0x00300100",
                     "enabled": true,
-                    "detection_methods": [
-                        {
-                            "name": "Reflected XSS Check",
-                            "enabled": true
-                        }
-                    ]
-                },
-                {
-                    "type_index": "0x00200310",
-                    "enabled": true,
-                    "detection_methods": [
-                        {
-                            "name": "DOM-Based XSS Check",
-                            "enabled": true
-                        }
-                    ]
-                },
-                {
-                    "type_index": "0x00200311",
-                    "enabled": true,
-                    "detection_methods": [
-                        {
-                            "name": "DOM-Based Reflected XSS Check",
-                            "enabled": true
-                        }
-                    ]
-                },
-                {
-                    "type_index": "0x00200312",
-                    "enabled": true,
-                    "detection_methods": [
-                        {
-                            "name": "DOM-Based Stored XSS Check",
-                            "enabled": true
-                        }
-                    ]
-                },
-                {
-                    "type_index": "0x00100900",
-                    "enabled": true,
-                    "detection_methods": [
-                        {
-                            "name": "HTTP Method Check",
-                            "enabled": true
-                        }
-                    ]
+                    "detection_methods": []
                 }
             ],
             "store_issues_within_queue_items": false

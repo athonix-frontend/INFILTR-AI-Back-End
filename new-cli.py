@@ -31,6 +31,9 @@ DB_NAME = "mydb"
 DB_USER = "myuser"
 DB_PASS = "mypassword"
 
+# URL for sending status updates to the FastAPI endpoint
+UPDATE_STATUS_URL = "http://127.0.0.1:8000/api/update-status"
+
 # Global context buffers
 vulnerability_context_buffer = []  # Stores each discovered vulnerability details
 pentest_script_context_buffer = []   # Stores each generated pentest script and its execution results
@@ -69,6 +72,16 @@ def setup_logging():
     return logger
 
 logger = setup_logging()
+
+def send_status_update(phase):
+    """
+    Sends a status update to the FastAPI /api/update-status endpoint.
+    """
+    try:
+        response = requests.post(UPDATE_STATUS_URL, json={"phase": phase})
+        logger.info(f"Sent status update: '{phase}' (Response code: {response.status_code})")
+    except Exception as e:
+        logger.error(f"Error sending status update for phase '{phase}': {e}")
 
 def strip_code_fences(text):
     """
@@ -1964,6 +1977,8 @@ def launch_scan():
 
     logger.info(f"Target URL entered: {target_url}")
 
+    # Send status update for configuration phase
+    send_status_update("Configuration phase")
     try:
         update_config_file(config_path, target_url)
     except Exception as e:
@@ -1985,6 +2000,8 @@ def launch_scan():
         logger.error(f"Failed to read configuration file: {e}")
         raise
 
+    # Send status update for crawling phase
+    send_status_update("Crawling phase")
     payload = {
         "urls": [target_url],
         "name": None,
@@ -2115,12 +2132,16 @@ def monitor_scan(task_id, api_url, api_token, poll_interval, openai_model):
 
         if scan_status in ["succeeded", "failed", "paused"]:
             print(f"[{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Scan finished with status: {scan_status}")
+            # Send status update for auditing phase before processing final results
+            send_status_update("Auditing phase")
             if scan_status in ["succeeded", "paused"]:
                 print("Final Issues Report:")
                 for issue_event in issues:
                     issue = issue_event.get("issue", {})
                     print(json.dumps(issue, indent=4))
                 process_exploitable_vulnerabilities(issues, openai_model)
+                # Send status update for analysis & pentesting phase after processing vulnerabilities
+                send_status_update("Analysis & Pentesting phase")
             break
 
         time.sleep(poll_interval)
@@ -2534,4 +2555,6 @@ if __name__ == "__main__":
         structured_output = generate_executive_summary("o3-mini")
         print("\n=== Structured JSON Output ===")
         print(json.dumps(structured_output, indent=4))
+        # Send status update for report generation phase
+        send_status_update("Report generation phase")
         insert_structured_data(structured_output)

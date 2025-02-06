@@ -22,27 +22,25 @@ def setup_logging():
     logger = logging.getLogger("GPT_Script")
     logger.setLevel(logging.DEBUG)
     
-    # Create a console handler (prints to stdout)
+    # Console handler: outputs to stdout
     c_handler = logging.StreamHandler(sys.stdout)
     c_handler.setLevel(logging.INFO)
     
-    # Create a file handler (writes to GPT.log)
+    # File handler: outputs to GPT.log
     f_handler = logging.FileHandler("GPT.log")
     f_handler.setLevel(logging.DEBUG)
     
-    # Create formatters for both handlers
-    c_format = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
-    f_format = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
-    c_handler.setFormatter(c_format)
-    f_handler.setFormatter(f_format)
+    # Formatters
+    formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+    c_handler.setFormatter(formatter)
+    f_handler.setFormatter(formatter)
     
-    # Add the handlers to the logger
+    # Add handlers to logger
     logger.addHandler(c_handler)
     logger.addHandler(f_handler)
-    
     return logger
 
-# Instantiate logger for the whole module
+# Create logger instance
 logger = setup_logging()
 
 # ---------------------------
@@ -62,11 +60,11 @@ app.add_middleware(
 # Database setup
 Base.metadata.create_all(bind=engine)
 
-# Password hashing context
+# ---------------------------
+# Password Hashing and JWT Settings
+# ---------------------------
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-# JWT settings
-SECRET_KEY = "b43d25f0c3fa7bc3a2d6b5982c841bcf0e1dcf2c56e6c4a3d0fc4b60467822b3"  # Use a strong secret key in production
+SECRET_KEY = "b43d25f0c3fa7bc3a2d6b5982c841bcf0e1dcf2c56e6c4a3d0fc4b60467822b3"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
@@ -98,13 +96,14 @@ class ConnectionManager:
         self.active_connections.append(websocket)
 
     def disconnect(self, websocket: WebSocket):
-        self.active_connections.remove(websocket)
+        if websocket in self.active_connections:
+            self.active_connections.remove(websocket)
 
     async def broadcast(self, message: str):
         for connection in self.active_connections:
             await connection.send_text(message)
 
-# Instantiate the connection manager outside the class definition
+# Instantiate the connection manager
 manager = ConnectionManager()
 
 # ---------------------------
@@ -142,14 +141,11 @@ def authenticate_user(db: Session, email: str, password: str):
 # ---------------------------
 # API Endpoints
 # ---------------------------
-
-# User registration endpoint
 @app.post("/api/register")
 def register_user(user: UserCreate, db: Session = Depends(get_db)):
     user = create_user(db, user)
     return {"message": "User registered successfully!", "user_id": user.user_id}
 
-# User login endpoint
 @app.post("/api/login", response_model=Token)
 def login_user(user: UserLogin, db: Session = Depends(get_db)):
     db_user = authenticate_user(db, user.email, user.password)
@@ -158,16 +154,20 @@ def login_user(user: UserLogin, db: Session = Depends(get_db)):
     access_token = create_access_token(data={"sub": db_user.email})
     return {"access_token": access_token, "token_type": "bearer"}
 
-# Endpoint to run new-cli.py script
 @app.post("/api/run-script")
 def run_insert_script():
     try:
+        # Run the new-cli.py script
         result = subprocess.run(
             [sys.executable, "/opt/infiltr-ai/new-cli.py"],
             capture_output=True, text=True
         )
+        # Log stdout and stderr for debugging
+        logger.debug("Script stdout: " + result.stdout)
+        logger.debug("Script stderr: " + result.stderr)
+
         if result.returncode != 0:
-            error_msg = f"Script failed: {result.stderr}"
+            error_msg = f"Script failed: return code {result.returncode}\nstdout: {result.stdout}\nstderr: {result.stderr}"
             logger.error(error_msg)
             raise HTTPException(status_code=500, detail=error_msg)
         return {"message": "Script executed successfully", "output": result.stdout}
@@ -175,7 +175,6 @@ def run_insert_script():
         logger.exception("Error executing script")
         raise HTTPException(status_code=500, detail=str(e))
 
-# Aggregated data endpoint
 @app.get("/api/aggregated-data")
 def get_aggregated_data(db: Session = Depends(get_db)):
     try:
@@ -202,25 +201,23 @@ def get_aggregated_data(db: Session = Depends(get_db)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-# WebSocket endpoint for status updates
 @app.websocket("/ws/status")
 async def websocket_endpoint(websocket: WebSocket):
     await manager.connect(websocket)
     try:
         while True:
-            # Wait for client messages (if needed)
+            # Wait for messages from the client if needed
             data = await websocket.receive_text()
-            # You can process incoming messages here if required.
+            # (Optional: Process incoming messages)
     except WebSocketDisconnect:
         manager.disconnect(websocket)
 
-# Endpoint to update status (sends message to all connected WebSocket clients)
 @app.post("/api/update-status")
 async def update_status(phase: str = Body(..., embed=True)):
+    # Broadcast the phase to all connected WebSocket clients
     await manager.broadcast(phase)
     return {"message": "Status updated", "phase": phase}
 
-# Root endpoint
 @app.get("/")
 async def root():
     return {"message": "Welcome to the backend API!"}

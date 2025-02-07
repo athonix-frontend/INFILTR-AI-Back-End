@@ -29,7 +29,7 @@ from openai import OpenAI
 DB_HOST = "172.235.38.75"
 DB_NAME = "mydb"
 DB_USER = "myuser"
-DB_PASS = "mypassword"
+DB_PASS = "Y9&!mKzF@2$P3vX*J^Qg8R#"
 
 # URL for sending status updates to the FastAPI endpoint
 UPDATE_STATUS_URL = "http://127.0.0.1:8000/api/update-status"

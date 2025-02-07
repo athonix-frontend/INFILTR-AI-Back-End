@@ -54,7 +54,8 @@ def setup_logging():
     c_handler = logging.StreamHandler(sys.stdout)
     f_handler = logging.FileHandler('GPT.log')
 
-    c_handler.setLevel(logging.INFO)
+    # We set the console handler to only output ERROR (or higher) so that normal INFO logs do not appear on stdout.
+    c_handler.setLevel(logging.ERROR)
     f_handler.setLevel(logging.DEBUG)
 
     # Create formatters

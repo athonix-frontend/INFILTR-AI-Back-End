@@ -1984,8 +1984,8 @@ def launch_scan():
 
     logger.info(f"Target URL provided: {target_url}")
 
-    # Send status update for configuration phase
-    send_status_update("Configuration phase")
+    # Send status update for configuring phase
+    send_status_update("Configuring")
     try:
         update_config_file(config_path, target_url)
     except Exception as e:
@@ -2008,7 +2008,7 @@ def launch_scan():
         raise
 
     # Send status update for crawling phase
-    send_status_update("Crawling phase")
+    send_status_update("Crawling")
     payload = {
         "urls": [target_url],
         "name": None,
@@ -2140,15 +2140,15 @@ def monitor_scan(task_id, api_url, api_token, poll_interval, openai_model):
         if scan_status in ["succeeded", "failed", "paused"]:
             print(f"[{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Scan finished with status: {scan_status}")
             # Send status update for auditing phase before processing final results
-            send_status_update("Auditing phase")
+            send_status_update("Auditing")
             if scan_status in ["succeeded", "paused"]:
                 print("Final Issues Report:")
                 for issue_event in issues:
                     issue = issue_event.get("issue", {})
                     print(json.dumps(issue, indent=4))
                 process_exploitable_vulnerabilities(issues, openai_model)
-                # Send status update for analysis & pentesting phase after processing vulnerabilities
-                send_status_update("Analysis & Pentesting phase")
+                # Send status update for pentesting & analyzing phase after processing vulnerabilities
+                send_status_update("Pentesting & Analyzing")
             break
 
         time.sleep(poll_interval)
@@ -2552,6 +2552,9 @@ if __name__ == "__main__":
         logger.error("OPENAI_API_KEY is not set. Please set it as an environment variable.")
         sys.exit(1)
 
+    # Send status update for initializing phase
+    send_status_update("Initializing")
+
     try:
         launch_scan()
     except Exception as e:
@@ -2563,5 +2566,5 @@ if __name__ == "__main__":
         print("\n=== Structured JSON Output ===")
         print(json.dumps(structured_output, indent=4))
         # Send status update for report generation phase
-        send_status_update("Report generation phase")
+        send_status_update("Generating a Report")
         insert_structured_data(structured_output)

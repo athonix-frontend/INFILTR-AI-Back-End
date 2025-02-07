@@ -10,6 +10,7 @@ from typing import Optional
 import subprocess
 import sys
 import logging
+import asyncio  # NEW: Import asyncio for async subprocess handling
 
 # Import database and models
 from app.database import Base, engine, get_db
@@ -155,22 +156,30 @@ def login_user(user: UserLogin, db: Session = Depends(get_db)):
     return {"access_token": access_token, "token_type": "bearer"}
 
 @app.post("/api/run-script")
-def run_insert_script(target_url: str = Body(..., embed=True)):
+async def run_insert_script(target_url: str = Body(..., embed=True)):
     try:
-        # Pass the target_url as a command-line argument to new-cli.py
-        result = subprocess.run(
-            [sys.executable, "/opt/infiltr-ai/new-cli.py", target_url],
-            capture_output=True, text=True
+        # Launch the external script asynchronously, passing the target_url
+        process = await asyncio.create_subprocess_exec(
+            sys.executable, "/opt/infiltr-ai/new-cli.py", target_url,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE
         )
-        # Log stdout and stderr for debugging
-        logger.debug("Script stdout: " + result.stdout)
-        logger.debug("Script stderr: " + result.stderr)
-
-        if result.returncode != 0:
-            error_msg = f"Script failed: return code {result.returncode}\nstdout: {result.stdout}\nstderr: {result.stderr}"
-            logger.error(error_msg)
-            raise HTTPException(status_code=500, detail=error_msg)
-        return {"message": "Script executed successfully", "output": result.stdout}
+        # Read stdout line by line and broadcast to WebSocket clients
+        while True:
+            line = await process.stdout.readline()
+            if not line:
+                break
+            decoded_line = line.decode('utf-8').strip()
+            logger.debug("Broadcasting: " + decoded_line)
+            await manager.broadcast(decoded_line)
+        # Read any stderr and broadcast if present
+        stderr = await process.stderr.read()
+        if stderr:
+            error_output = stderr.decode('utf-8').strip()
+            logger.debug("Broadcasting stderr: " + error_output)
+            await manager.broadcast("Error: " + error_output)
+        await process.wait()
+        return {"message": "Script executed successfully"}
     except Exception as e:
         logger.exception("Error executing script")
         raise HTTPException(status_code=500, detail=str(e))

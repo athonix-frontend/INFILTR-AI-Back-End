@@ -23,11 +23,12 @@ def setup_logging():
     logger = logging.getLogger("GPT_Script")
     logger.setLevel(logging.DEBUG)
     
-    # Console handler: outputs to stdout
+    # Console handler: outputs to stdout.
+    # We set the level to ERROR so that only very important messages go to stdout.
     c_handler = logging.StreamHandler(sys.stdout)
-    c_handler.setLevel(logging.INFO)
+    c_handler.setLevel(logging.ERROR)
     
-    # File handler: outputs to GPT.log
+    # File handler: outputs to GPT.log.
     f_handler = logging.FileHandler("GPT.log")
     f_handler.setLevel(logging.DEBUG)
     

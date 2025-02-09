@@ -26,10 +26,10 @@ from psycopg2 import sql
 from openai import OpenAI
 
 # Database connection parameters for PostgreSQL
-DB_HOST = "172.235.38.75"
-DB_NAME = "mydb"
-DB_USER = "myuser"
-DB_PASS = "Y9&!mKzF@2$P3vX*J^Qg8R#"
+DB_HOST = "172.235.49.182"
+DB_NAME = "INFILTRAI_DB"
+DB_USER = "INFILTRAI"
+DB_PASS = "!zX^8PqLr9#Tn&WoKdY2B6Cg5Q@M"
 
 # URL for sending status updates to the FastAPI endpoint
 UPDATE_STATUS_URL = "http://127.0.0.1:8000/api/update-status"

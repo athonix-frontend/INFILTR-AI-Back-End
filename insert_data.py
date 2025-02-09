@@ -4,10 +4,10 @@ from datetime import datetime
 import json
 
 # Database connection parameters
-DB_HOST = "172.235.38.75"
-DB_NAME = "mydatabase"
-DB_USER = "postgres"
-DB_PASS = "postgres"
+DB_HOST = "172.235.49.182"
+DB_NAME = "INFILTRAI_DB"
+DB_USER = "INFILTRAI"
+DB_PASS = "!zX^8PqLr9#Tn&WoKdY2B6Cg5Q@M"
 
 def insert_data():
     try:

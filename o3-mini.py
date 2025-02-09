@@ -25,10 +25,10 @@ from psycopg2 import sql
 from openai import OpenAI
 
 # Database connection parameters for PostgreSQL
-DB_HOST = "172.235.38.75"
-DB_NAME = "mydb"
-DB_USER = "postgres"
-DB_PASS = "postgres"
+DB_HOST = "172.235.49.182"
+DB_NAME = "INFILTRAI_DB"
+DB_USER = "INFILTRAI"
+DB_PASS = "!zX^8PqLr9#Tn&WoKdY2B6Cg5Q@M"
 
 # Global context buffers
 vulnerability_context_buffer = []  # Stores each discovered vulnerability details

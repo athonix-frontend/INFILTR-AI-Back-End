@@ -265,6 +265,30 @@ def compliance_scores_ot(db: Session = Depends(get_db)):
         logger.exception("Error fetching compliance scores")
         raise HTTPException(status_code=500, detail=str(e))
 
+# ---------------------------
+# New Endpoint: Potential Loss per Vulnerability on Most Recent Test Date
+# ---------------------------
+@app.get("/api/potential-loss-per-vuln")
+def potential_loss_per_vuln(db: Session = Depends(get_db)):
+    try:
+        query = text("""
+            SELECT v.vulnerability_name, v.potential_loss
+            FROM vulnerabilities v
+            JOIN tests t ON v.test_id = t.test_id
+            WHERE t.test_date = (SELECT MAX(test_date) FROM tests)
+        """)
+        result = db.execute(query).mappings().all()
+        data = []
+        for row in result:
+            data.append({
+                "vulnerability_name": row["vulnerability_name"],
+                "potential_loss": float(row["potential_loss"]) if row["potential_loss"] is not None else None,
+            })
+        return {"data": data}
+    except Exception as e:
+        logger.exception("Error fetching potential loss per vulnerability")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.get("/")
 async def root():
     return {"message": "Welcome to the backend API!"}

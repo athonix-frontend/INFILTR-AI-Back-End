@@ -228,6 +228,31 @@ async def update_status(phase: str = Body(..., embed=True)):
     await manager.broadcast(phase)
     return {"message": "Status updated", "phase": phase}
 
+# ---------------------------
+# New Endpoint: Vulnerability Summary
+# ---------------------------
+@app.get("/api/vulnerability-summary")
+def vulnerability_summary(db: Session = Depends(get_db)):
+    try:
+        query = text("""
+            SELECT v.vulnerability_name, v.severity, v.cvss_score
+            FROM vulnerabilities v
+            JOIN tests t ON v.test_id = t.test_id
+            WHERE t.test_date = (SELECT MAX(test_date) FROM tests)
+        """)
+        result = db.execute(query).mappings().all()
+        summary = []
+        for row in result:
+            summary.append({
+                "vulnerability_name": row["vulnerability_name"],
+                "severity": row["severity"],
+                "cvss_score": float(row["cvss_score"]) if row["cvss_score"] is not None else None
+            })
+        return {"data": summary}
+    except Exception as e:
+        logger.exception("Error fetching vulnerability summary")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.get("/")
 async def root():
     return {"message": "Welcome to the backend API!"}

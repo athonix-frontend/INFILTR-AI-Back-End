@@ -289,6 +289,39 @@ def potential_loss_per_vuln(db: Session = Depends(get_db)):
         logger.exception("Error fetching potential loss per vulnerability")
         raise HTTPException(status_code=500, detail=str(e))
 
+# ---------------------------
+# New Endpoint: Previous Assessments
+# ---------------------------
+@app.get("/api/previous-assessments")
+def previous_assessments(db: Session = Depends(get_db)):
+    try:
+        # This query selects tests older than the most recent one,
+        # aggregating associated vulnerability names into an array.
+        query = text("""
+            SELECT 
+                t.test_id,
+                t.test_date,
+                t.test_status as status,
+                COALESCE(array_agg(v.vulnerability_name) FILTER (WHERE v.vulnerability_name IS NOT NULL), '{}') as vulnerabilities
+            FROM tests t
+            LEFT JOIN vulnerabilities v ON t.test_id = v.test_id
+            WHERE t.test_date < (SELECT MAX(test_date) FROM tests)
+            GROUP BY t.test_id, t.test_date, t.test_status
+            ORDER BY t.test_date DESC;
+        """)
+        result = db.execute(query).mappings().all()
+        data = []
+        for row in result:
+            data.append({
+                "test_date": row["test_date"].isoformat() if row["test_date"] is not None else None,
+                "vulnerabilities": row["vulnerabilities"],
+                "status": row["status"]
+            })
+        return {"data": data}
+    except Exception as e:
+        logger.exception("Error fetching previous assessments")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.get("/")
 async def root():
     return {"message": "Welcome to the backend API!"}

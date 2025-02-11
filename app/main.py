@@ -290,13 +290,12 @@ def potential_loss_per_vuln(db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail=str(e))
 
 # ---------------------------
-# New Endpoint: Previous Assessments
+# New Endpoint: Previous Assessments (All Tests)
 # ---------------------------
 @app.get("/api/previous-assessments")
 def previous_assessments(db: Session = Depends(get_db)):
     try:
-        # This query selects tests older than the most recent one,
-        # aggregating associated vulnerability names into an array.
+        # This query returns all tests, aggregating associated vulnerability names into an array.
         query = text("""
             SELECT 
                 t.test_id,
@@ -305,7 +304,6 @@ def previous_assessments(db: Session = Depends(get_db)):
                 COALESCE(array_agg(v.vulnerability_name) FILTER (WHERE v.vulnerability_name IS NOT NULL), '{}') as vulnerabilities
             FROM tests t
             LEFT JOIN vulnerabilities v ON t.test_id = v.test_id
-            WHERE t.test_date < (SELECT MAX(test_date) FROM tests)
             GROUP BY t.test_id, t.test_date, t.test_status
             ORDER BY t.test_date DESC;
         """)

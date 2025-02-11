@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException, Depends, WebSocket, WebSocketDisconnect, Body
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
-from sqlalchemy import text  # <-- Added import for text
+from sqlalchemy import text
 from pydantic import BaseModel
 from passlib.context import CryptContext
 from jose import JWTError, jwt
@@ -10,7 +10,7 @@ from typing import Optional
 import subprocess
 import sys
 import logging
-import asyncio  # NEW: Import asyncio for async subprocess handling
+import asyncio
 
 # Import database and models
 from app.database import Base, engine, get_db
@@ -24,7 +24,6 @@ def setup_logging():
     logger.setLevel(logging.DEBUG)
     
     # Console handler: outputs to stdout.
-    # We set the level to ERROR so that only very important messages go to stdout.
     c_handler = logging.StreamHandler(sys.stdout)
     c_handler.setLevel(logging.ERROR)
     
@@ -37,7 +36,6 @@ def setup_logging():
     c_handler.setFormatter(formatter)
     f_handler.setFormatter(formatter)
     
-    # Add handlers to logger
     logger.addHandler(c_handler)
     logger.addHandler(f_handler)
     return logger
@@ -50,7 +48,6 @@ logger = setup_logging()
 # ---------------------------
 app = FastAPI()
 
-# Allow CORS for frontend integration
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173", "http://localhost:3000", "http://localhost:8000"],
@@ -105,7 +102,6 @@ class ConnectionManager:
         for connection in self.active_connections:
             await connection.send_text(message)
 
-# Instantiate the connection manager
 manager = ConnectionManager()
 
 # ---------------------------
@@ -159,13 +155,11 @@ def login_user(user: UserLogin, db: Session = Depends(get_db)):
 @app.post("/api/run-script")
 async def run_insert_script(target_url: str = Body(..., embed=True)):
     try:
-        # Launch the external script asynchronously, passing the target_url
         process = await asyncio.create_subprocess_exec(
             sys.executable, "/opt/infiltr-ai/new-cli.py", target_url,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE
         )
-        # Read stdout line by line and broadcast to WebSocket clients
         while True:
             line = await process.stdout.readline()
             if not line:
@@ -173,7 +167,6 @@ async def run_insert_script(target_url: str = Body(..., embed=True)):
             decoded_line = line.decode('utf-8').strip()
             logger.debug("Broadcasting: " + decoded_line)
             await manager.broadcast(decoded_line)
-        # Read any stderr and broadcast if present
         stderr = await process.stderr.read()
         if stderr:
             error_output = stderr.decode('utf-8').strip()
@@ -216,21 +209,15 @@ async def websocket_endpoint(websocket: WebSocket):
     await manager.connect(websocket)
     try:
         while True:
-            # Wait for messages from the client if needed
             data = await websocket.receive_text()
-            # (Optional: Process incoming messages)
     except WebSocketDisconnect:
         manager.disconnect(websocket)
 
 @app.post("/api/update-status")
 async def update_status(phase: str = Body(..., embed=True)):
-    # Broadcast the phase to all connected WebSocket clients
     await manager.broadcast(phase)
     return {"message": "Status updated", "phase": phase}
 
-# ---------------------------
-# New Endpoint: Vulnerability Summary
-# ---------------------------
 @app.get("/api/vulnerability-summary")
 def vulnerability_summary(db: Session = Depends(get_db)):
     try:
@@ -251,6 +238,31 @@ def vulnerability_summary(db: Session = Depends(get_db)):
         return {"data": summary}
     except Exception as e:
         logger.exception("Error fetching vulnerability summary")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# ---------------------------
+# New Endpoint: Compliance Scores per Test ID and Test Date
+# ---------------------------
+@app.get("/api/compliance-scores-ot")
+def compliance_scores_ot(db: Session = Depends(get_db)):
+    try:
+        query = text("""
+            SELECT t.test_id, t.test_date, r.compliance_score
+            FROM tests t
+            JOIN reports r ON t.test_id = r.test_id
+            ORDER BY t.test_date ASC;
+        """)
+        result = db.execute(query).mappings().all()
+        data = []
+        for row in result:
+            data.append({
+                "test_id": row["test_id"],
+                "test_date": row["test_date"].isoformat() if row["test_date"] is not None else None,
+                "compliance_score": float(row["compliance_score"]) if row["compliance_score"] is not None else None
+            })
+        return {"data": data}
+    except Exception as e:
+        logger.exception("Error fetching compliance scores")
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/")

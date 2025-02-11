@@ -178,30 +178,26 @@ async def run_insert_script(target_url: str = Body(..., embed=True)):
         logger.exception("Error executing script")
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/api/aggregated-data")
-def get_aggregated_data(db: Session = Depends(get_db)):
+@app.get("/api/risk-ot")
+def risk_ot(db: Session = Depends(get_db)):
     try:
         query = text("""
-            SELECT
-                date_trunc('month', report_date) as month,
-                AVG(risk_score) as avg_risk,
-                SUM(vulnerability_count) as total_vulnerabilities,
-                AVG(compliance_score) as avg_compliance
-            FROM reports
-            GROUP BY month
-            ORDER BY month;
+            SELECT t.test_id, t.test_date, r.risk_score
+            FROM tests t
+            JOIN reports r ON t.test_id = r.test_id
+            ORDER BY t.test_date ASC;
         """)
-        result = db.execute(query).mappings()
+        result = db.execute(query).mappings().all()
         data = []
         for row in result:
             data.append({
-                "month": row["month"].strftime("%Y-%m") if row["month"] is not None else None,
-                "avg_risk": float(row["avg_risk"]) if row["avg_risk"] is not None else None,
-                "total_vulnerabilities": int(row["total_vulnerabilities"]) if row["total_vulnerabilities"] is not None else None,
-                "avg_compliance": float(row["avg_compliance"]) if row["avg_compliance"] is not None else None,
+                "test_id": row["test_id"],
+                "test_date": row["test_date"].isoformat() if row["test_date"] is not None else None,
+                "risk_score": float(row["risk_score"]) if row["risk_score"] is not None else None,
             })
         return {"data": data}
     except Exception as e:
+        logger.exception("Error fetching risk data")
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.websocket("/ws/status")

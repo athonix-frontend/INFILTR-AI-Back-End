@@ -288,28 +288,28 @@ def potential_loss_per_vuln(db: Session = Depends(get_db)):
 # ---------------------------
 # New Endpoint: Previous Assessments (All Tests)
 # ---------------------------
-@app.get("/api/previous-assessments")
-def previous_assessments(db: Session = Depends(get_db)):
+@app.get("/api/prev-assessments")
+def prev_assessments(db: Session = Depends(get_db)):
     try:
-        # This query returns all tests, aggregating associated vulnerability names into an array.
         query = text("""
             SELECT 
-                t.test_id,
-                t.test_date,
-                t.test_status as status,
-                COALESCE(array_agg(v.vulnerability_name) FILTER (WHERE v.vulnerability_name IS NOT NULL), '{}') as vulnerabilities
+                t.test_name, 
+                t.test_date, 
+                t.test_status, 
+                COUNT(v.vulnerability_id) AS vulnerability_count
             FROM tests t
             LEFT JOIN vulnerabilities v ON t.test_id = v.test_id
-            GROUP BY t.test_id, t.test_date, t.test_status
+            GROUP BY t.test_id, t.test_name, t.test_date, t.test_status
             ORDER BY t.test_date DESC;
         """)
         result = db.execute(query).mappings().all()
         data = []
         for row in result:
             data.append({
+                "test_name": row["test_name"],
                 "test_date": row["test_date"].isoformat() if row["test_date"] is not None else None,
-                "vulnerabilities": row["vulnerabilities"],
-                "status": row["status"]
+                "vulnerability_count": row["vulnerability_count"],
+                "test_status": row["test_status"]
             })
         return {"data": data}
     except Exception as e:

@@ -218,7 +218,7 @@ async def update_status(phase: str = Body(..., embed=True)):
 def vulnerability_summary(db: Session = Depends(get_db)):
     try:
         query = text("""
-            SELECT v.vulnerability_name, v.severity, v.cvss_score
+            SELECT v.vulnerability_name, v.endpoint, v.severity, v.cvss_score
             FROM vulnerabilities v
             JOIN tests t ON v.test_id = t.test_id
             WHERE t.test_date = (SELECT MAX(test_date) FROM tests)
@@ -228,6 +228,7 @@ def vulnerability_summary(db: Session = Depends(get_db)):
         for row in result:
             summary.append({
                 "vulnerability_name": row["vulnerability_name"],
+                "endpoint": row["endpoint"],
                 "severity": row["severity"],
                 "cvss_score": float(row["cvss_score"]) if row["cvss_score"] is not None else None
             })

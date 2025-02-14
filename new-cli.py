@@ -2355,7 +2355,7 @@ def print_context_buffers():
     print("\n=== Pentest Script Context Buffer ===")
     print(json.dumps(pentest_script_context_buffer, indent=4))
 
-def generate_executive_summary(model):
+def generate_executive_summary(model, regulation, framework, scan_type, report_type):
     """
     [STEP 1] Build a prompt that instructs the model to output a valid JSON object.
         - We specify each key and its expected type for each table.
@@ -2371,12 +2371,17 @@ def generate_executive_summary(model):
     pentest_context = json.dumps(pentest_script_context_buffer, indent=4)
     
     prompt = (
-        "You are a professional penetration tester and database integrator. Generate a structured JSON output for database insertion. "
-        "Using the following context buffers, analyze the discovered vulnerabilities and executed pentest scripts to produce data for the database.\n\n"
-        "For any date or timestamp fields, use the current date and time: " + current_datetime + ".\n\n"
-        "vulnerability_context_buffer:\n" + vulnerability_context + "\n\n"
-        "pentest_script_context_buffer:\n" + pentest_context + "\n\n"
-        "The JSON must contain the following keys exactly, with arrays of objects as values:\n\n"
+        f"You are a professional penetration tester and database integrator. Generate a structured JSON output for database insertion. "
+        f"Using the following context buffers, analyze the discovered vulnerabilities and executed pentest scripts to produce data for the database.\n\n"
+        f"Report Parameters:\n"
+        f"Regulation: {regulation}\n"
+        f"Framework: {framework}\n"
+        f"Scan Type: {scan_type}\n"
+        f"Report Type: {report_type}\n\n"
+        f"For any date or timestamp fields, use the current date and time: {current_datetime}.\n\n"
+        f"vulnerability_context_buffer:\n{vulnerability_context}\n\n"
+        f"pentest_script_context_buffer:\n{pentest_context}\n\n"
+        f"The JSON must contain the following keys exactly, with arrays of objects as values:\n\n"
         "\"reports\": an array of objects, each with the following keys: "
         "report_id (integer), test_id (integer), vulnerability_count (integer), compliance_score (numeric), "
         "framework_name (string), compliance_date (null for testing), risk_score (numeric), summary (string), "
@@ -2396,7 +2401,7 @@ def generate_executive_summary(model):
         "Output only valid JSON with no additional commentary or whitespace. "
         "If you cannot generate the JSON, output an error message in JSON format."
     )
-
+    
     try:
         response = client.chat.completions.create(
             model=model,
@@ -2556,6 +2561,26 @@ if __name__ == "__main__":
     # Send status update for initializing phase
     send_status_update("Initializing")
 
+    # Read command-line parameters
+    # sys.argv[1] => target_url
+    # sys.argv[2] => regulation
+    # sys.argv[3] => framework
+    # sys.argv[4] => scan_type
+    # sys.argv[5] => report_type
+    if len(sys.argv) < 2 or not sys.argv[1].strip():
+        logger.warning("No target URL provided via command-line argument. Using default URL.")
+        target_url = "http://127.0.0.1"
+    else:
+        target_url = sys.argv[1].strip()
+
+    regulation = sys.argv[2].strip() if len(sys.argv) > 2 and sys.argv[2].strip() else "Standard"
+    framework = sys.argv[3].strip() if len(sys.argv) > 3 and sys.argv[3].strip() else "Standard"
+    scan_type = sys.argv[4].strip() if len(sys.argv) > 4 and sys.argv[4].strip() else "Quick"
+    report_type = sys.argv[5].strip() if len(sys.argv) > 5 and sys.argv[5].strip() else "Standard"
+
+    logger.info(f"Target URL: {target_url}")
+    logger.info(f"Regulation: {regulation}, Framework: {framework}, Scan Type: {scan_type}, Report Type: {report_type}")
+
     try:
         launch_scan()
     except Exception as e:
@@ -2563,7 +2588,7 @@ if __name__ == "__main__":
         sys.exit(1)
     finally:
         print_context_buffers()
-        structured_output = generate_executive_summary("o3-mini")
+        structured_output = generate_executive_summary("o3-mini", regulation, framework, scan_type, report_type)
         print("\n=== Structured JSON Output ===")
         print(json.dumps(structured_output, indent=4))
         # Send status update for report generation phase

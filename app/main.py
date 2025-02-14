@@ -353,6 +353,116 @@ def get_suggestions(db: Session = Depends(get_db)):
         logger.exception("Error fetching suggestions")
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.get("/api/cards")
+def test_summary(db: Session = Depends(get_db)):
+    """
+    Returns summary data for the two most recent tests:
+      - Vulnerabilities count and its percentage difference.
+      - Suggestions count and its percentage difference.
+      - Risk score and its percentage difference.
+      - Compliance score and its percentage difference.
+    """
+    # Step 1: Get the two most recent tests
+    tests = db.execute(
+        text("SELECT test_id, test_date FROM tests ORDER BY test_date DESC LIMIT 2")
+    ).mappings().all()
+
+    if not tests:
+        raise HTTPException(status_code=404, detail="No tests found.")
+
+    current_test = tests[0]
+    previous_test = tests[1] if len(tests) > 1 else None
+
+    # Step 2: Get Vulnerabilities count
+    current_vulns = db.execute(
+        text("SELECT COUNT(*) FROM vulnerabilities WHERE test_id = :tid"),
+        {"tid": current_test["test_id"]}
+    ).scalar()
+
+    previous_vulns = (
+        db.execute(
+            text("SELECT COUNT(*) FROM vulnerabilities WHERE test_id = :tid"),
+            {"tid": previous_test["test_id"]}
+        ).scalar() if previous_test else None
+    )
+
+    # Step 3: Get Suggestions count (joining vulnerabilities and suggestions)
+    current_suggestions = db.execute(
+        text("""
+            SELECT COUNT(*) 
+            FROM suggestions s 
+            JOIN vulnerabilities v ON s.vulnerability_id = v.vulnerability_id 
+            WHERE v.test_id = :tid
+        """),
+        {"tid": current_test["test_id"]}
+    ).scalar()
+
+    previous_suggestions = (
+        db.execute(
+            text("""
+                SELECT COUNT(*) 
+                FROM suggestions s 
+                JOIN vulnerabilities v ON s.vulnerability_id = v.vulnerability_id 
+                WHERE v.test_id = :tid
+            """),
+            {"tid": previous_test["test_id"]}
+        ).scalar() if previous_test else None
+    )
+
+    # Step 4: Get Risk and Compliance Scores from reports
+    current_report = db.execute(
+        text("SELECT risk_score, compliance_score FROM reports WHERE test_id = :tid"),
+        {"tid": current_test["test_id"]}
+    ).mappings().first()
+
+    previous_report = (
+        db.execute(
+            text("SELECT risk_score, compliance_score FROM reports WHERE test_id = :tid"),
+            {"tid": previous_test["test_id"]}
+        ).mappings().first() if previous_test else None
+    )
+
+    current_risk = float(current_report["risk_score"]) if current_report and current_report["risk_score"] is not None else None
+    current_compliance = float(current_report["compliance_score"]) if current_report and current_report["compliance_score"] is not None else None
+
+    previous_risk = float(previous_report["risk_score"]) if previous_report and previous_report["risk_score"] is not None else None
+    previous_compliance = float(previous_report["compliance_score"]) if previous_report and previous_report["compliance_score"] is not None else None
+
+    # Step 5: Helper to calculate signed percentage difference
+    def calc_percentage_diff(current, previous):
+        # Avoid division by zero and handle missing previous values
+        if previous is None or previous == 0:
+            return None
+        return ((current - previous) / previous) * 100
+
+    vuln_diff = calc_percentage_diff(current_vulns, previous_vulns) if previous_vulns is not None else None
+    sugg_diff = calc_percentage_diff(current_suggestions, previous_suggestions) if previous_suggestions is not None else None
+    risk_diff = calc_percentage_diff(current_risk, previous_risk) if previous_risk is not None else None
+    compliance_diff = calc_percentage_diff(current_compliance, previous_compliance) if previous_compliance is not None else None
+
+    # Step 6: Prepare and return the summary
+    summary = {
+        "vulnerabilities": {
+            "count": current_vulns,
+            "percentage_difference": vuln_diff
+        },
+        "suggestions": {
+            "count": current_suggestions,
+            "percentage_difference": sugg_diff
+        },
+        "risk_score": {
+            "score": current_risk,
+            "percentage_difference": risk_diff
+        },
+        "compliance_score": {
+            "score": current_compliance,
+            "percentage_difference": compliance_diff
+        }
+    }
+
+    return {"data": summary}
+
+
 
 @app.get("/")
 async def root():

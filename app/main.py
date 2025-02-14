@@ -331,9 +331,14 @@ def prev_assessments(db: Session = Depends(get_db)):
 def get_suggestions(db: Session = Depends(get_db)):
     try:
         query = text("""
-            SELECT v.vulnerability_name, s.suggestion_text, s.cwe_id
+            SELECT DISTINCT ON (v.test_id, v.vulnerability_name)
+                v.test_id,
+                v.vulnerability_name,
+                s.suggestion_text,
+                s.cwe_id
             FROM suggestions s
             JOIN vulnerabilities v ON s.vulnerability_id = v.vulnerability_id
+            ORDER BY v.test_id, v.vulnerability_name, s.suggestion_text;
         """)
         result = db.execute(query).mappings().all()
         suggestions = []

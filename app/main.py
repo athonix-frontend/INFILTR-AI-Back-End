@@ -222,9 +222,6 @@ def vulnerability_summary(db: Session = Depends(get_db)):
                    t.test_name, t.test_date
             FROM vulnerabilities v
             JOIN tests t ON v.test_id = t.test_id
-            WHERE t.test_id = (
-                SELECT test_id FROM tests ORDER BY test_date DESC LIMIT 1
-            )
         """)
         result = db.execute(query).mappings().all()
         summary = []

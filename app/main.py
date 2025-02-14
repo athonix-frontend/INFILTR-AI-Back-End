@@ -326,15 +326,15 @@ def prev_assessments(db: Session = Depends(get_db)):
 def get_suggestions(db: Session = Depends(get_db)):
     try:
         query = text("""
-            SELECT s.suggestion_id, s.vulnerability_id, s.suggestion_text, s.cwe_id
+            SELECT v.vulnerability_name, s.suggestion_text, s.cwe_id
             FROM suggestions s
+            JOIN vulnerabilities v ON s.vulnerability_id = v.vulnerability_id
         """)
         result = db.execute(query).mappings().all()
         suggestions = []
         for row in result:
             suggestions.append({
-                "suggestion_id": row["suggestion_id"],
-                "vulnerability_id": row["vulnerability_id"],
+                "vulnerability_name": row["vulnerability_name"],
                 "suggestion_text": row["suggestion_text"],
                 "cwe_id": row["cwe_id"]
             })

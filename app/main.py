@@ -462,7 +462,17 @@ def test_summary(db: Session = Depends(get_db)):
 
     return {"data": summary}
 
-
+@app.get("/api/report-summary")
+def report_summary(test_id: int, db: Session = Depends(get_db)):
+    try:
+        query = text("SELECT summary_data FROM reports WHERE test_id = :tid")
+        result = db.execute(query, {"tid": test_id}).mappings().first()
+        if not result or result["summary_data"] is None:
+            raise HTTPException(status_code=404, detail="Report summary not found")
+        return {"summary": result["summary_data"]}
+    except Exception as e:
+        logger.exception("Error fetching report summary")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/")
 async def root():

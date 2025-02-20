@@ -247,9 +247,6 @@ def vulnerability_summary(db: Session = Depends(get_db)):
         logger.exception("Error fetching vulnerability summary")
         raise HTTPException(status_code=500, detail=str(e))
 
-# ---------------------------
-# New Endpoint: Compliance Scores per Test ID and Test Date
-# ---------------------------
 @app.get("/api/compliance-scores-ot")
 def compliance_scores_ot(db: Session = Depends(get_db)):
     try:
@@ -272,9 +269,6 @@ def compliance_scores_ot(db: Session = Depends(get_db)):
         logger.exception("Error fetching compliance scores")
         raise HTTPException(status_code=500, detail=str(e))
 
-# ---------------------------
-# New Endpoint: Potential Loss per Vulnerability on Most Recent Test Date
-# ---------------------------
 @app.get("/api/potential-loss-per-vuln")
 def potential_loss_per_vuln(db: Session = Depends(get_db)):
     try:
@@ -296,14 +290,12 @@ def potential_loss_per_vuln(db: Session = Depends(get_db)):
         logger.exception("Error fetching potential loss per vulnerability")
         raise HTTPException(status_code=500, detail=str(e))
 
-# ---------------------------
-# New Endpoint: Previous Assessments (All Tests)
-# ---------------------------
 @app.get("/api/prev-assessments")
 def prev_assessments(db: Session = Depends(get_db)):
     try:
         query = text("""
             SELECT 
+                t.test_id,
                 t.test_name, 
                 t.test_date, 
                 t.test_status, 
@@ -317,6 +309,7 @@ def prev_assessments(db: Session = Depends(get_db)):
         data = []
         for row in result:
             data.append({
+                "test_id": row["test_id"],
                 "test_name": row["test_name"],
                 "test_date": row["test_date"].isoformat() if row["test_date"] is not None else None,
                 "vulnerability_count": row["vulnerability_count"],
@@ -355,13 +348,6 @@ def get_suggestions(db: Session = Depends(get_db)):
 
 @app.get("/api/cards")
 def test_summary(db: Session = Depends(get_db)):
-    """
-    Returns summary data for the two most recent tests:
-      - Vulnerabilities count and its percentage difference.
-      - Suggestions count and its percentage difference.
-      - Risk score and its percentage difference.
-      - Compliance score and its percentage difference.
-    """
     tests = db.execute(
         text("SELECT test_id, test_date FROM tests ORDER BY test_date DESC LIMIT 2")
     ).mappings().all()

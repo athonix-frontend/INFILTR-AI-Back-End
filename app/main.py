@@ -362,7 +362,6 @@ def test_summary(db: Session = Depends(get_db)):
       - Risk score and its percentage difference.
       - Compliance score and its percentage difference.
     """
-    # Step 1: Get the two most recent tests
     tests = db.execute(
         text("SELECT test_id, test_date FROM tests ORDER BY test_date DESC LIMIT 2")
     ).mappings().all()
@@ -373,7 +372,6 @@ def test_summary(db: Session = Depends(get_db)):
     current_test = tests[0]
     previous_test = tests[1] if len(tests) > 1 else None
 
-    # Step 2: Get Vulnerabilities count
     current_vulns = db.execute(
         text("SELECT COUNT(*) FROM vulnerabilities WHERE test_id = :tid"),
         {"tid": current_test["test_id"]}
@@ -386,7 +384,6 @@ def test_summary(db: Session = Depends(get_db)):
         ).scalar() if previous_test else None
     )
 
-    # Step 3: Get Suggestions count (joining vulnerabilities and suggestions)
     current_suggestions = db.execute(
         text("""
             SELECT COUNT(*) 
@@ -409,7 +406,6 @@ def test_summary(db: Session = Depends(get_db)):
         ).scalar() if previous_test else None
     )
 
-    # Step 4: Get Risk and Compliance Scores from reports
     current_report = db.execute(
         text("SELECT risk_score, compliance_score FROM reports WHERE test_id = :tid"),
         {"tid": current_test["test_id"]}
@@ -428,9 +424,7 @@ def test_summary(db: Session = Depends(get_db)):
     previous_risk = float(previous_report["risk_score"]) if previous_report and previous_report["risk_score"] is not None else None
     previous_compliance = float(previous_report["compliance_score"]) if previous_report and previous_report["compliance_score"] is not None else None
 
-    # Step 5: Helper to calculate signed percentage difference
     def calc_percentage_diff(current, previous):
-        # Avoid division by zero and handle missing previous values
         if previous is None or previous == 0:
             return None
         return ((current - previous) / previous) * 100
@@ -440,7 +434,6 @@ def test_summary(db: Session = Depends(get_db)):
     risk_diff = calc_percentage_diff(current_risk, previous_risk) if previous_risk is not None else None
     compliance_diff = calc_percentage_diff(current_compliance, previous_compliance) if previous_compliance is not None else None
 
-    # Step 6: Prepare and return the summary
     summary = {
         "vulnerabilities": {
             "count": current_vulns,
@@ -465,11 +458,14 @@ def test_summary(db: Session = Depends(get_db)):
 @app.get("/api/report-summary")
 def report_summary(test_id: int, db: Session = Depends(get_db)):
     try:
-        query = text("SELECT summary_data FROM reports WHERE test_id = :tid")
+        query = text("SELECT summary, detailed_findings FROM reports WHERE test_id = :tid")
         result = db.execute(query, {"tid": test_id}).mappings().first()
-        if not result or result["summary_data"] is None:
+        if not result or result["summary"] is None:
             raise HTTPException(status_code=404, detail="Report summary not found")
-        return {"summary": result["summary_data"]}
+        return {
+            "summary": result["summary"],
+            "detailed_findings": result["detailed_findings"]
+        }
     except Exception as e:
         logger.exception("Error fetching report summary")
         raise HTTPException(status_code=500, detail=str(e))

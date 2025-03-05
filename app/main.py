@@ -25,15 +25,12 @@ def setup_logging():
     logger = logging.getLogger("GPT_Script")
     logger.setLevel(logging.DEBUG)
     
-    # Console handler: outputs to stdout.
     c_handler = logging.StreamHandler(sys.stdout)
     c_handler.setLevel(logging.ERROR)
     
-    # File handler: outputs to GPT.log.
     f_handler = logging.FileHandler("GPT.log")
     f_handler.setLevel(logging.DEBUG)
     
-    # Formatters
     formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
     c_handler.setFormatter(formatter)
     f_handler.setFormatter(formatter)
@@ -469,7 +466,6 @@ async def zoom_oauth_callback(code: str, redirect_uri: str = "http://172.235.49.
     client_secret = "Loth7n2ZizZM1krL7coI5aaiUhkusICX"  # Your Zoom Client Secret
     token_url = "https://zoom.us/oauth/token"
     
-    # Prepare the Authorization header using Base64 encoding
     credentials = f"{client_id}:{client_secret}"
     encoded_credentials = base64.b64encode(credentials.encode()).decode()
     headers = {
@@ -477,7 +473,6 @@ async def zoom_oauth_callback(code: str, redirect_uri: str = "http://172.235.49.
         "Content-Type": "application/x-www-form-urlencoded"
     }
     
-    # Data must be sent as form data
     data = {
         "grant_type": "authorization_code",
         "code": code,
@@ -488,13 +483,14 @@ async def zoom_oauth_callback(code: str, redirect_uri: str = "http://172.235.49.
         async with httpx.AsyncClient() as client:
             response = await client.post(token_url, data=data, headers=headers)
         
-        if response.status_code != 200:
+        if (response.status_code) != 200:
             raise HTTPException(status_code=response.status_code, detail=f"Failed to exchange token: {response.text}")
         
         token_data = response.json()
         access_token = token_data.get("access_token")
         
-        # Return the token data (in production, store or redirect as needed)
+        # In production, you might store the token and then redirect the user back to your frontend.
+        # For this example, we return the token as a query parameter so the frontend can capture it.
         return {"access_token": access_token, "token_data": token_data}
     
     except Exception as e:
@@ -542,7 +538,7 @@ async def create_meeting(
     async with httpx.AsyncClient() as client:
         response = await client.post("https://api.zoom.us/v2/users/me/meetings", json=meeting_payload, headers=headers)
     
-    if response.status_code != 201:
+    if (response.status_code) != 201:
         raise HTTPException(status_code=response.status_code, detail=f"Failed to create meeting: {response.text}")
     
     return response.json()
@@ -574,7 +570,7 @@ async def refresh_token(refresh_token: str = Body(..., embed=True)):
     async with httpx.AsyncClient() as client:
         response = await client.post(token_url, data=data, headers=headers)
     
-    if response.status_code != 200:
+    if (response.status_code) != 200:
         raise HTTPException(status_code=response.status_code, detail=f"Failed to refresh token: {response.text}")
     
     return response.json()

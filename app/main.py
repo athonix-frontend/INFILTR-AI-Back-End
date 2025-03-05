@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException, Depends, WebSocket, WebSocketDisconnect, Body
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from pydantic import BaseModel
@@ -457,10 +458,11 @@ def report_summary(test_id: int, db: Session = Depends(get_db)):
 # Zoom OAuth Callback Endpoint
 # ---------------------------
 @app.get("/oauth/callback")
-async def zoom_oauth_callback(code: str, redirect_uri: str = "http://172.235.49.182:8000/oauth/callback"):
+async def zoom_oauth_callback(code: str):
     """
     This endpoint handles the OAuth callback from Zoom.
-    It exchanges the authorization code for an access token.
+    It exchanges the authorization code for an access token,
+    then redirects the user back to the React app with the token.
     """
     client_id = "CHPwG7tiSZKVp9BzkSIeSA"       # Your Zoom Client ID
     client_secret = "Loth7n2ZizZM1krL7coI5aaiUhkusICX"  # Your Zoom Client Secret
@@ -483,15 +485,15 @@ async def zoom_oauth_callback(code: str, redirect_uri: str = "http://172.235.49.
         async with httpx.AsyncClient() as client:
             response = await client.post(token_url, data=data, headers=headers)
         
-        if (response.status_code) != 200:
+        if response.status_code != 200:
             raise HTTPException(status_code=response.status_code, detail=f"Failed to exchange token: {response.text}")
         
         token_data = response.json()
         access_token = token_data.get("access_token")
         
-        # In production, you might store the token and then redirect the user back to your frontend.
-        # For this example, we return the token as a query parameter so the frontend can capture it.
-        return {"access_token": access_token, "token_data": token_data}
+        # Redirect to the React app with the access_token as a query parameter.
+        const_frontend_url = f"http://localhost:3000/?access_token={access_token}"
+        return RedirectResponse(url=const_frontend_url)
     
     except Exception as e:
         logger.exception("Error during OAuth callback")
@@ -518,7 +520,7 @@ async def create_meeting(
     """
     meeting_payload = {
         "topic": meeting_topic,
-        "type": 2,  # Scheduled meeting
+        "type": 2,
         "start_time": start_time,
         "duration": duration,
         "timezone": timezone,
@@ -538,7 +540,7 @@ async def create_meeting(
     async with httpx.AsyncClient() as client:
         response = await client.post("https://api.zoom.us/v2/users/me/meetings", json=meeting_payload, headers=headers)
     
-    if (response.status_code) != 201:
+    if response.status_code != 201:
         raise HTTPException(status_code=response.status_code, detail=f"Failed to create meeting: {response.text}")
     
     return response.json()
@@ -570,7 +572,7 @@ async def refresh_token(refresh_token: str = Body(..., embed=True)):
     async with httpx.AsyncClient() as client:
         response = await client.post(token_url, data=data, headers=headers)
     
-    if (response.status_code) != 200:
+    if response.status_code != 200:
         raise HTTPException(status_code=response.status_code, detail=f"Failed to refresh token: {response.text}")
     
     return response.json()

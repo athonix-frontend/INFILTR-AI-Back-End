@@ -503,6 +503,84 @@ async def zoom_oauth_callback(code: str, redirect_uri: str = "http://172.235.49.
         logger.exception("Error during OAuth callback")
         raise HTTPException(status_code=500, detail=str(e))
 
+# ---------------------------
+# Zoom Create Meeting Endpoint
+# ---------------------------
+@app.post("/api/create-meeting")
+async def create_meeting(
+    token: str = Body(..., embed=True),
+    meeting_topic: str = Body(..., embed=True),
+    start_time: str = Body(..., embed=True),
+    duration: int = Body(..., embed=True),
+    timezone: str = Body(..., embed=True)
+):
+    """
+    Create a scheduled Zoom meeting using the provided access token.
+    - **token**: Zoom access token
+    - **meeting_topic**: Topic of the meeting
+    - **start_time**: Start time in ISO 8601 format (UTC)
+    - **duration**: Duration in minutes
+    - **timezone**: Timezone (e.g., "UTC")
+    """
+    meeting_payload = {
+        "topic": meeting_topic,
+        "type": 2,  # Scheduled meeting
+        "start_time": start_time,
+        "duration": duration,
+        "timezone": timezone,
+        "agenda": "Demo meeting",
+        "settings": {
+            "host_video": True,
+            "participant_video": True,
+            "join_before_host": False
+        }
+    }
+    
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json"
+    }
+    
+    async with httpx.AsyncClient() as client:
+        response = await client.post("https://api.zoom.us/v2/users/me/meetings", json=meeting_payload, headers=headers)
+    
+    if response.status_code != 201:
+        raise HTTPException(status_code=response.status_code, detail=f"Failed to create meeting: {response.text}")
+    
+    return response.json()
+
+# ---------------------------
+# Zoom Refresh Token Endpoint (Optional)
+# ---------------------------
+@app.post("/api/refresh-token")
+async def refresh_token(refresh_token: str = Body(..., embed=True)):
+    """
+    Refresh the Zoom access token using the provided refresh token.
+    """
+    token_url = "https://zoom.us/oauth/token"
+    client_id = "CHPwG7tiSZKVp9BzkSIeSA"
+    client_secret = "Loth7n2ZizZM1krL7coI5aaiUhkusICX"
+    
+    credentials = f"{client_id}:{client_secret}"
+    encoded_credentials = base64.b64encode(credentials.encode()).decode()
+    headers = {
+        "Authorization": f"Basic {encoded_credentials}",
+        "Content-Type": "application/x-www-form-urlencoded"
+    }
+    
+    data = {
+        "grant_type": "refresh_token",
+        "refresh_token": refresh_token
+    }
+    
+    async with httpx.AsyncClient() as client:
+        response = await client.post(token_url, data=data, headers=headers)
+    
+    if response.status_code != 200:
+        raise HTTPException(status_code=response.status_code, detail=f"Failed to refresh token: {response.text}")
+    
+    return response.json()
+
 @app.get("/")
 async def root():
     return {"message": "Welcome to the backend API!"}

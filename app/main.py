@@ -11,7 +11,8 @@ import subprocess
 import sys
 import logging
 import asyncio
-import httpx  # Added for making async HTTP requests
+import httpx
+import base64
 
 # Import database and models
 from app.database import Base, engine, get_db
@@ -466,32 +467,36 @@ async def zoom_oauth_callback(code: str, redirect_uri: str = "http://172.235.49.
     This endpoint handles the OAuth callback from Zoom.
     It exchanges the authorization code for an access token.
     """
-    client_id = "CHPwG7tiSZKVp9BzkSIeSA"       # Replace with your Zoom Client ID
-    client_secret = "Loth7n2ZizZM1krL7coI5aaiUhkusICX"  # Replace with your Zoom Client Secret
+    client_id = "CHPwG7tiSZKVp9BzkSIeSA"       # Your Zoom Client ID
+    client_secret = "Loth7n2ZizZM1krL7coI5aaiUhkusICX"  # Your Zoom Client Secret
     token_url = "https://zoom.us/oauth/token"
     
-    params = {
-        "grant_type": "authorization_code",
-        "code": code,
-        "redirect_uri": "http://172.235.49.182:8000/oauth/callback"  # Updated to ensure exact match
-    }
-
+    # Prepare the Authorization header using Base64 encoding
+    credentials = f"{client_id}:{client_secret}"
+    encoded_credentials = base64.b64encode(credentials.encode()).decode()
     headers = {
-        "Authorization": f"Basic {httpx.auth._basic_auth_str(client_id, client_secret)}",
+        "Authorization": f"Basic {encoded_credentials}",
         "Content-Type": "application/x-www-form-urlencoded"
     }
-
+    
+    # Data must be sent as form data
+    data = {
+        "grant_type": "authorization_code",
+        "code": code,
+        "redirect_uri": "http://172.235.49.182:8000/oauth/callback"
+    }
+    
     try:
         async with httpx.AsyncClient() as client:
-            response = await client.post(token_url, data=params, headers=headers)
+            response = await client.post(token_url, data=data, headers=headers)
         
         if response.status_code != 200:
             raise HTTPException(status_code=response.status_code, detail=f"Failed to exchange token: {response.text}")
         
         token_data = response.json()
         access_token = token_data.get("access_token")
-
-        # You can return or store the token as needed
+        
+        # Return the token data (in production, store or redirect as needed)
         return {"access_token": access_token, "token_data": token_data}
     
     except Exception as e:

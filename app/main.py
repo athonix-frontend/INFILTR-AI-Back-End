@@ -461,7 +461,7 @@ def report_summary(test_id: int, db: Session = Depends(get_db)):
 # Zoom OAuth Callback Endpoint
 # ---------------------------
 @app.get("/oauth/callback")
-async def zoom_oauth_callback(code: str, redirect_uri: str = "http://localhost:3000/oauth/callback"):
+async def zoom_oauth_callback(code: str, redirect_uri: str = "http://172.235.49.182:8000/oauth/callback"):
     """
     This endpoint handles the OAuth callback from Zoom.
     It exchanges the authorization code for an access token.
@@ -469,21 +469,31 @@ async def zoom_oauth_callback(code: str, redirect_uri: str = "http://localhost:3
     client_id = "CHPwG7tiSZKVp9BzkSIeSA"       # Replace with your Zoom Client ID
     client_secret = "Loth7n2ZizZM1krL7coI5aaiUhkusICX"  # Replace with your Zoom Client Secret
     token_url = "https://zoom.us/oauth/token"
+    
     params = {
         "grant_type": "authorization_code",
         "code": code,
-        "redirect_uri": redirect_uri
+        "redirect_uri": "http://172.235.49.182:8000/oauth/callback"  # Updated to ensure exact match
     }
+
+    headers = {
+        "Authorization": f"Basic {httpx.auth._basic_auth_str(client_id, client_secret)}",
+        "Content-Type": "application/x-www-form-urlencoded"
+    }
+
     try:
         async with httpx.AsyncClient() as client:
-            response = await client.post(token_url, params=params, auth=(client_id, client_secret))
+            response = await client.post(token_url, data=params, headers=headers)
+        
         if response.status_code != 200:
             raise HTTPException(status_code=response.status_code, detail=f"Failed to exchange token: {response.text}")
+        
         token_data = response.json()
         access_token = token_data.get("access_token")
-        # For now, simply return the access token and token data.
-        # In production, you might want to store it or redirect the user.
+
+        # You can return or store the token as needed
         return {"access_token": access_token, "token_data": token_data}
+    
     except Exception as e:
         logger.exception("Error during OAuth callback")
         raise HTTPException(status_code=500, detail=str(e))

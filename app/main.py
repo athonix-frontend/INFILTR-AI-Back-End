@@ -42,7 +42,6 @@ def setup_logging():
     logger.addHandler(f_handler)
     return logger
 
-# Create logger instance
 logger = setup_logging()
 
 # ---------------------------
@@ -58,7 +57,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Database setup
 Base.metadata.create_all(bind=engine)
 
 # ---------------------------
@@ -166,12 +164,12 @@ async def run_insert_script(target_url: str = Body(..., embed=True)):
             line = await process.stdout.readline()
             if not line:
                 break
-            decoded_line = line.decode('utf-8').strip()
+            decoded_line = line.decode("utf-8").strip()
             logger.debug("Broadcasting: " + decoded_line)
             await manager.broadcast(decoded_line)
         stderr = await process.stderr.read()
         if stderr:
-            error_output = stderr.decode('utf-8').strip()
+            error_output = stderr.decode("utf-8").strip()
             logger.debug("Broadcasting stderr: " + error_output)
             await manager.broadcast("Error: " + error_output)
         await process.wait()
@@ -207,7 +205,7 @@ async def websocket_endpoint(websocket: WebSocket):
     await manager.connect(websocket)
     try:
         while True:
-            data = await websocket.receive_text()
+            await websocket.receive_text()
     except WebSocketDisconnect:
         manager.disconnect(websocket)
 
@@ -516,11 +514,11 @@ async def create_meeting(
 ):
     """
     Create a scheduled Zoom meeting using the provided access token.
-    - **token**: Zoom access token
-    - **meeting_topic**: Topic of the meeting
-    - **start_time**: Start time in ISO 8601 format (UTC)
-    - **duration**: Duration in minutes
-    - **timezone**: Timezone (e.g., "UTC")
+    - token: Zoom access token
+    - meeting_topic: Topic of the meeting
+    - start_time: Start time in ISO 8601 format (UTC)
+    - duration: Duration in minutes
+    - timezone: Timezone (e.g., "UTC")
     """
     meeting_payload = {
         "topic": meeting_topic,
